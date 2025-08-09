@@ -9,41 +9,31 @@
     body { max-width: 720px; margin: 40px auto; padding: 0 16px; }
     h1 { font-size: 22px; margin-bottom: 16px; }
     .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; }
-    .row { display: grid; gap: 10px; grid-template-columns: 1fr 140px; }
-    .row + .row { margin-top: 10px; }
-    input, textarea, button {
-      width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px;
-    }
-    button { cursor: pointer; }
-    .muted { color: #6b7280; font-size: 12px; margin-top: 6px; }
-    #result { white-space: pre-wrap; background: #f9fafb; border-radius: 12px; padding: 16px; min-height: 120px; }
+    textarea, button { width: 100%; padding: 12px; font-size: 14px; }
+    textarea { border: 1px solid #d1d5db; border-radius: 8px; }
+    button { border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+    #result { white-space: pre-wrap; background: #f9fafb; border-radius: 12px; padding: 16px; min-height: 120px; margin-top: 24px; }
   </style>
 </head>
 <body>
   <h1>어메이징사업부 블로그 자동화</h1>
+
   <div class="card">
-    <div class="row">
-      <textarea id="query" rows="4" placeholder="질문을 입력하세요..."></textarea>
-      <button id="sendBtn">Send</button>
-    </div>
-    <div class="row" style="grid-template-columns: 1fr 1fr;">
-      <input id="namespace" placeholder="Namespace (예: default)" />
-      <input id="topK" placeholder="TopK (예: 5)" />
-    </div>
-    <div class="muted">Enter your n8n webhook URL below.</div>
-    <input id="webhookUrl" placeholder="https://<your-n8n-domain>/webhook-test/ask" />
+    <textarea id="query" rows="5" placeholder="질문을 입력하세요..."></textarea>
+    <button id="sendBtn">Send</button>
   </div>
 
-  <h1 style="margin-top:28px;">Result</h1>
+  <h1 style="margin-top:24px;">Result</h1>
   <div id="result" class="card"></div>
 
   <script>
     // JS strings/comments are English only.
+    const WEBHOOK_URL = "https://<your-n8n-domain>/webhook-test/ask"; // change to /webhook/ask for production
+    const NAMESPACE = "default";
+    const TOPK = 10;
+
     const sendBtn = document.getElementById('sendBtn');
     const queryEl = document.getElementById('query');
-    const nsEl = document.getElementById('namespace');
-    const topKEl = document.getElementById('topK');
-    const urlEl = document.getElementById('webhookUrl');
     const resultEl = document.getElementById('result');
 
     function setLoading(on) {
@@ -64,19 +54,14 @@
     }
 
     sendBtn.addEventListener('click', async () => {
-      const url = urlEl.value.trim();
       const query = queryEl.value.trim();
-      const namespace = nsEl.value.trim() || 'default';
-      const topK = parseInt(topKEl.value.trim() || '5', 10);
-
-      if (!url) { alert('Set webhook URL.'); return; }
-      if (!query) { alert('Type a question.'); return; }
+      if (!query) { alert('질문을 입력하세요.'); return; }
 
       setLoading(true);
       resultEl.textContent = '';
       try {
-        const payload = { query, namespace, topK };
-        const res = await postJson(url, payload);
+        const payload = { query, namespace: NAMESPACE, topK: TOPK };
+        const res = await postJson(WEBHOOK_URL, payload);
         if (!res.ok) {
           resultEl.textContent = `HTTP ${res.status}\n` + JSON.stringify(res.data, null, 2);
           return;
