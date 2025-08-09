@@ -6,7 +6,7 @@
   <title>어메이징사업부 블로그 자동화</title>
   <style>
     :root{
-      --bg1:#f8fbff; --bg2:#fff7fd; --card:#ffffffcc; --ink:#111827; --ring:#9b87f5;
+      --bg1:#f8fbff; --bg2:#fff7fd; --ink:#111827; --ring:#9b87f5;
       --accent:#7c3aed; --accent2:#9b87f5;
     }
     *{box-sizing:border-box}
@@ -20,19 +20,31 @@
         linear-gradient(180deg, var(--bg1), #fff);
       display:grid;place-items:center;padding:28px;
     }
-    .wrap{width:100%;max-width:720px}
-    .top{
-      display:flex;align-items:center;gap:14px;margin-bottom:12px
+    .wrap{width:100%;max-width:760px}
+    /* header */
+    .hero{
+      text-align:center; margin-bottom:14px;
     }
     .sticker{
-      width:56px;height:56px;border-radius:16px;display:grid;place-items:center;overflow:hidden;
+      width:74px;height:74px;margin:0 auto 10px; border-radius:18px;display:grid;place-items:center;overflow:hidden;
       background:linear-gradient(135deg,#fef3c7,#fde68a);border:1px solid #fcd34d;
-      box-shadow:inset 0 0 0 3px #ffffffb8,0 8px 22px #f59e0b33;
+      box-shadow:inset 0 0 0 3px #ffffffb8,0 10px 26px #f59e0b33;
     }
+    .title{
+      font-size:28px; font-weight:900; margin:0;
+      background:linear-gradient(90deg,#7c3aed,#22d3ee,#7c3aed);
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+      background-size:200% 100%; animation:shine 4s linear infinite;
+      letter-spacing:-0.3px;
+    }
+    @keyframes shine{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+
+    /* card */
     .card{
-      background:var(--card);border:1px solid #eef2ff;border-radius:20px;backdrop-filter:blur(8px);
-      box-shadow:0 10px 30px #00000010;padding:18px 18px 16px;
+      background:#ffffffcc;border:1px solid #eef2ff;border-radius:22px;backdrop-filter:blur(8px);
+      box-shadow:0 12px 34px #00000012;padding:20px 18px 16px;
     }
+
     /* compact input */
     .ask{
       display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid #e5e7eb;
@@ -54,72 +66,62 @@
     .send:hover{filter:brightness(1.04)}
     .send:active{transform:translateY(1px)}
     .send[disabled]{opacity:.65;cursor:not-allowed}
-    .chipbar{
-      display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px;font-size:12px;color:#6b7280
-    }
-    .res{
-      margin-top:14px;background:#fff;border:1px solid #eef2ff;border-radius:16px;padding:14px;min-height:130px;
-      white-space:pre-wrap;line-height:1.6
-    }
     .spin{width:16px;height:16px;border-radius:50%;border:2px solid #ffffff80;border-top-color:#fff;display:inline-block;animation:spin .8s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* tiny helper button row */
-    .helpers{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+    /* helpers (randomized each load) */
+    .helpers{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center}
     .helper{
       font-size:12px;border:1px dashed #e5e7eb;background:#fff;border-radius:999px;padding:6px 10px;cursor:pointer;
     }
     .helper:hover{border-color:#c7d2fe}
+
+    .res{
+      margin-top:14px;background:#fff;border:1px solid #eef2ff;border-radius:16px;padding:14px;min-height:130px;
+      white-space:pre-wrap;line-height:1.6
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="top">
+    <div class="hero">
       <div class="sticker" aria-hidden="true">
-        <!-- cute inline SVG (no external file) -->
-        <svg viewBox="0 0 80 80" width="46" height="46">
-          <defs>
-            <linearGradient id="g" x1="0" x2="1">
-              <stop offset="0" stop-color="#fef3c7"/><stop offset="1" stop-color="#fde68a"/>
-            </linearGradient>
-          </defs>
+        <!-- inline SVG mascot -->
+        <svg viewBox="0 0 80 80" width="58" height="58">
+          <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#fef3c7"/><stop offset="1" stop-color="#fde68a"/></linearGradient></defs>
           <circle cx="40" cy="40" r="28" fill="url(#g)" stroke="#fbbf24" stroke-width="2"/>
-          <circle cx="32" cy="35" r="4" fill="#1f2937"/>
-          <circle cx="48" cy="35" r="4" fill="#1f2937"/>
+          <circle cx="32" cy="35" r="4" fill="#1f2937"/><circle cx="48" cy="35" r="4" fill="#1f2937"/>
           <path d="M28 49 Q40 58 52 49" stroke="#1f2937" stroke-width="3" fill="none" stroke-linecap="round"/>
           <path d="M18 26 26 18 M54 18 62 26" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
         </svg>
       </div>
-      <h1 style="font-size:20px;margin:0">어메이징사업부 블로그 자동화</h1>
+      <h1 class="title">어메이징사업부 블로그 자동화</h1>
     </div>
 
     <div class="card">
       <div class="ask">
-        <input id="q" autocomplete="off" placeholder="질문을 입력하세요" />
-        <button id="send" class="send" type="button">
-          <span id="sendLabel">Send</span>
-          <span aria-hidden="true">🚀</span>
-        </button>
+        <input id="q" autocomplete="off" placeholder="주제를 입력하세요" />
+        <button id="send" class="send" type="button"><span id="sendLabel">Send</span> 🚀</button>
       </div>
 
-      <!-- quick example chips (optional, fill input on click). You can delete this block if not needed. -->
-      <div class="helpers">
+      <!-- 준비된 추천 문구: JS는 문자열을 만들지 않고 DOM만 섞음 -->
+      <div class="helpers" id="helpers">
         <button class="helper" data-text="실손보험 청구 서류 요약해줘">실손 서류 요약</button>
         <button class="helper" data-text="항암 중입자 치료 보장 핵심만 알려줘">중입자치료 핵심</button>
         <button class="helper" data-text="장기요양보험 등급별 차이를 표로 정리해줘">장기요양 표정리</button>
+        <button class="helper" data-text="암 주요치료비 보장 항목을 간단히 정리해줘">암 주요치료비 핵심</button>
+        <button class="helper" data-text="뇌혈관·심장질환 진단비 차이를 한 문단으로 설명해줘">뇌심 진단비 비교</button>
+        <button class="helper" data-text="유병자 보험 3.N.5 구조를 초보자용으로 설명해줘">3.N.5 설명</button>
+        <button class="helper" data-text="상급병실 특약이 실제 보장에 어떤 영향을 주는지 알려줘">상급병실 특약</button>
+        <button class="helper" data-text="간병인 보험 주요 조건과 주의할 점만 모아줘">간병인 보험 포인트</button>
       </div>
 
       <div id="res" class="res"></div>
-
-      <div class="chipbar">
-        <span>namespace: <strong>default</strong></span> •
-        <span>topK: <strong>10</strong></span>
-      </div>
     </div>
   </div>
 
   <script>
-    // Config: change only WEBHOOK_URL (JS strings are English only)
+    /* JS strings/comments are English only. */
     const WEBHOOK_URL = "https://<your-n8n-domain>/webhook-test/ask"; // use /webhook/ask for production
     const NAMESPACE = "default";
     const TOPK = 10;
@@ -156,9 +158,22 @@
     }
     btn.addEventListener('click', send);
     q.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); send(); }});
-    document.querySelectorAll('.helper').forEach(el=>{
-      el.addEventListener('click', ()=>{ q.value = el.dataset.text || ''; q.focus(); });
-    });
+
+    /* Randomize helper chips (show only 3 each load) */
+    (function(){
+      const box = document.getElementById('helpers');
+      const chips = Array.from(box.children);
+      for (let i = chips.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        box.appendChild(chips[j]); // DOM reorder
+      }
+      chips.forEach((c, idx)=>{ c.style.display = idx < 3 ? 'inline-block' : 'none'; });
+      box.addEventListener('click', (e)=>{
+        const el = e.target.closest('.helper'); if(!el) return;
+        q.value = el.getAttribute('data-text') || '';
+        q.focus();
+      });
+    })();
   </script>
 </body>
 </html>
