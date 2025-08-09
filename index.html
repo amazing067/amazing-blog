@@ -1,30 +1,107 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>어메이징사업부 블로그 자동화</title>
   <style>
-    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
-    body { max-width: 720px; margin: 40px auto; padding: 0 16px; }
-    h1 { font-size: 22px; margin-bottom: 16px; }
-    .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; }
-    textarea, button { width: 100%; padding: 12px; font-size: 14px; }
-    textarea { border: 1px solid #d1d5db; border-radius: 8px; }
-    button { border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; margin-top: 10px; }
-    #result { white-space: pre-wrap; background: #f9fafb; border-radius: 12px; padding: 16px; min-height: 120px; margin-top: 24px; }
+    :root { --bg1:#f8fbff; --bg2:#fff7fd; --card:#ffffffcc; --ink:#111827; --muted:#6b7280; --ring:#9b87f5; --ok:#10b981;}
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; color: var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 800px at 10% -10%, var(--bg2), transparent 60%),
+                  radial-gradient(1000px 700px at 110% 10%, #e8f0ff, transparent 55%),
+                  linear-gradient(180deg, var(--bg1), #ffffff);
+      display: grid; place-items: center; padding: 32px;
+    }
+    .shell { width: 100%; max-width: 860px; position: relative; }
+    .badge {
+      display:inline-flex; align-items:center; gap:8px; font-size:12px; color:#6b7280;
+      background:#ffffffaa; border:1px solid #e5e7eb; padding:6px 10px; border-radius:999px; backdrop-filter: blur(6px);
+    }
+    .card {
+      margin-top: 14px; background: var(--card); border: 1px solid #eef2ff; border-radius: 20px;
+      backdrop-filter: blur(8px); box-shadow: 0 10px 30px #00000010;
+      padding: 18px; overflow: hidden;
+    }
+    .title {
+      display:flex; align-items:center; gap:12px; margin: 6px 0 2px;
+    }
+    .logo {
+      width: 42px; height: 42px; border-radius: 12px; display:grid; place-items:center; font-size:22px;
+      background: linear-gradient(135deg,#fef3c7,#fde68a);
+      border:1px solid #fcd34d;
+      box-shadow: inset 0 0 0 3px #ffffffb8, 0 8px 20px #f59e0b33;
+    }
+    h1 { font-size: 22px; margin: 0; }
+    .hint { color: var(--muted); font-size: 13px; margin-top: 2px; }
+
+    textarea {
+      width: 100%; border: 1.5px solid #e5e7eb; background: #fff;
+      border-radius: 14px; padding: 14px 16px; font-size: 15px; resize: vertical; min-height: 120px;
+      outline: none; transition: border .15s, box-shadow .15s;
+    }
+    textarea:focus { border-color: var(--ring); box-shadow: 0 0 0 4px #9b87f522; }
+
+    .actions { display:flex; gap:10px; align-items:center; margin-top: 12px; }
+    button {
+      border: 0; padding: 12px 18px; border-radius: 12px; font-weight: 600; cursor: pointer;
+      background: linear-gradient(135deg,#9b87f5,#7c3aed); color: #fff;
+      box-shadow: 0 10px 20px #7c3aed33, inset 0 -6px 12px #00000014;
+      transition: transform .06s ease, box-shadow .15s ease, filter .15s;
+    }
+    button:hover { filter: brightness(1.03); }
+    button:active { transform: translateY(1px); box-shadow: 0 6px 12px #7c3aed33, inset 0 -3px 8px #00000014; }
+    button[disabled] { opacity: .65; cursor: not-allowed; }
+
+    .spinner {
+      width: 16px; height: 16px; border-radius: 50%; border: 2px solid #ffffff80; border-top-color:#fff;
+      display: inline-block; vertical-align: middle; animation: spin .8s linear infinite; margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .result {
+      margin-top: 16px; background: #ffffff; border: 1px solid #eef2ff; border-radius: 16px; padding: 16px;
+      min-height: 140px; white-space: pre-wrap; line-height: 1.6;
+    }
+    .result.empty { color: var(--muted); }
+    .foot {
+      margin-top: 10px; font-size: 12px; color: var(--muted); display:flex; gap:10px; align-items:center;
+    }
+    .pill { padding: 4px 8px; border-radius: 999px; background:#ecfeff; color:#155e75; border:1px solid #a5f3fc; font-weight:600; }
   </style>
 </head>
 <body>
-  <h1>어메이징사업부 블로그 자동화</h1>
+  <div class="shell">
+    <span class="badge">✨ 어메이징사업부 • RAG Assistant</span>
 
-  <div class="card">
-    <textarea id="query" rows="5" placeholder="질문을 입력하세요..."></textarea>
-    <button id="sendBtn">Send</button>
+    <div class="card">
+      <div class="title">
+        <div class="logo">🧠</div>
+        <div>
+          <h1>어메이징사업부 블로그 자동화</h1>
+          <div class="hint">질문만 입력하면 벡터DB에서 찾아 요약해드립니다.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;">
+        <textarea id="query" placeholder="예) 실손보험 청구 서류 한눈에 정리해줘"></textarea>
+        <div class="actions">
+          <button id="sendBtn">Send</button>
+          <span class="hint">Enter 키로도 전송할 수 있어요.</span>
+        </div>
+      </div>
+
+      <div class="result empty" id="result">여기에 결과가 표시됩니다.</div>
+
+      <div class="foot">
+        <span class="pill">namespace: default</span>
+        <span class="pill">topK: 10</span>
+        <span class="hint">연결 상태는 n8n Webhook 설정에 따라 달라져요.</span>
+      </div>
+    </div>
   </div>
-
-  <h1 style="margin-top:24px;">Result</h1>
-  <div id="result" class="card"></div>
 
   <script>
     // JS strings/comments are English only.
@@ -32,13 +109,20 @@
     const NAMESPACE = "default";
     const TOPK = 10;
 
-    const sendBtn = document.getElementById('sendBtn');
-    const queryEl = document.getElementById('query');
-    const resultEl = document.getElementById('result');
+    const $ = (s)=>document.querySelector(s);
+    const sendBtn = $('#sendBtn');
+    const queryEl = $('#query');
+    const resultEl = $('#result');
 
     function setLoading(on) {
-      sendBtn.disabled = on;
-      sendBtn.textContent = on ? 'Loading...' : 'Send';
+      if (on) {
+        sendBtn.dataset.label = sendBtn.textContent;
+        sendBtn.innerHTML = '<span class="spinner"></span>Sending...';
+        sendBtn.disabled = true;
+      } else {
+        sendBtn.innerHTML = sendBtn.dataset.label || 'Send';
+        sendBtn.disabled = false;
+      }
     }
 
     async function postJson(url, body) {
@@ -48,31 +132,37 @@
         body: JSON.stringify(body)
       });
       const text = await res.text();
-      let data;
-      try { data = JSON.parse(text); } catch { data = { raw: text }; }
+      let data; try { data = JSON.parse(text); } catch { data = { raw: text }; }
       return { ok: res.ok, status: res.status, data };
     }
 
-    sendBtn.addEventListener('click', async () => {
-      const query = queryEl.value.trim();
-      if (!query) { alert('질문을 입력하세요.'); return; }
-
+    async function handleSend() {
+      const q = queryEl.value.trim();
+      if (!q) { alert('Please enter a question.'); return; }
+      resultEl.classList.add('empty');
+      resultEl.textContent = 'Waiting for response...';
       setLoading(true);
-      resultEl.textContent = '';
       try {
-        const payload = { query, namespace: NAMESPACE, topK: TOPK };
+        const payload = { query: q, namespace: NAMESPACE, topK: TOPK };
         const res = await postJson(WEBHOOK_URL, payload);
         if (!res.ok) {
           resultEl.textContent = `HTTP ${res.status}\n` + JSON.stringify(res.data, null, 2);
           return;
         }
-        const ans = res.data?.answer || res.data?.data || res.data?.raw || res.data;
-        resultEl.textContent = typeof ans === 'string' ? ans : JSON.stringify(ans, null, 2);
+        const ans = res.data?.answer ?? res.data?.data ?? res.data?.raw ?? res.data;
+        resultEl.textContent = (typeof ans === 'string') ? ans : JSON.stringify(ans, null, 2);
+        resultEl.classList.remove('empty');
       } catch (e) {
         resultEl.textContent = String(e);
       } finally {
         setLoading(false);
       }
+    }
+
+    sendBtn.addEventListener('click', handleSend);
+    queryEl.addEventListener('keydown', (e)=> {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) return;
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
     });
   </script>
 </body>
