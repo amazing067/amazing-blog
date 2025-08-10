@@ -22,13 +22,17 @@
     }
     .wrap{width:100%;max-width:760px}
     /* header */
-    .hero{
-      text-align:center; margin-bottom:14px;
-    }
+    .hero{text-align:center; margin-bottom:14px;}
     .sticker{
-      width:74px;height:74px;margin:0 auto 10px; border-radius:18px;display:grid;place-items:center;overflow:hidden;
-      background:linear-gradient(135deg,#fef3c7,#fde68a);border:1px solid #fcd34d;
+      width:100px;height:100px;margin:0 auto 10px; border-radius:18px;
+      display:grid;place-items:center;overflow:hidden;
+      background:linear-gradient(135deg,#fef3c7,#fde68a);
+      border:1px solid #fcd34d;
       box-shadow:inset 0 0 0 3px #ffffffb8,0 10px 26px #f59e0b33;
+      padding:4px;
+    }
+    .sticker img{
+      width:90%;height:90%;object-fit:contain;
     }
     .title{
       font-size:28px; font-weight:900; margin:0;
@@ -86,14 +90,7 @@
   <div class="wrap">
     <div class="hero">
       <div class="sticker" aria-hidden="true">
-        <!-- inline SVG mascot -->
-        <svg viewBox="0 0 80 80" width="58" height="58">
-          <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#fef3c7"/><stop offset="1" stop-color="#fde68a"/></linearGradient></defs>
-          <circle cx="40" cy="40" r="28" fill="url(#g)" stroke="#fbbf24" stroke-width="2"/>
-          <circle cx="32" cy="35" r="4" fill="#1f2937"/><circle cx="48" cy="35" r="4" fill="#1f2937"/>
-          <path d="M28 49 Q40 58 52 49" stroke="#1f2937" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <path d="M18 26 26 18 M54 18 62 26" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-        </svg>
+        <img src="949cb50d-ee9e-4f3d-bd6b-6d0a305c320f.png" alt="곰돌이"/>
       </div>
       <h1 class="title">어메이징사업부 블로그 자동화</h1>
     </div>
@@ -104,7 +101,6 @@
         <button id="send" class="send" type="button"><span id="sendLabel">Send</span> 🚀</button>
       </div>
 
-      <!-- 준비된 추천 문구: JS는 문자열을 만들지 않고 DOM만 섞음 -->
       <div class="helpers" id="helpers">
         <button class="helper" data-text="실손보험 청구 서류 요약해줘">실손 서류 요약</button>
         <button class="helper" data-text="항암 중입자 치료 보장 핵심만 알려줘">중입자치료 핵심</button>
@@ -120,73 +116,58 @@
     </div>
   </div>
 
-<script>
-  const WEBHOOK_URL = "https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook/ask";
+  <script>
+    const WEBHOOK_URL = "https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook/ask";
+    const NAMESPACE = "default";
+    const TOPK = 10;
 
-  const $ = (s)=>document.querySelector(s);
-  const q = $('#q');
-  const btn = $('#send');
-  const res = $('#res');
-  const sendLabel = $('#sendLabel');
+    const $ = (s)=>document.querySelector(s);
+    const q = $('#q');
+    const btn = $('#send');
+    const res = $('#res');
+    const sendLabel = $('#sendLabel');
 
-  function loading(on){
-    if(on){ btn.disabled = true; sendLabel.innerHTML = '<span class="spin"></span>'; }
-    else { btn.disabled = false; sendLabel.textContent = 'Send'; }
-  }
+    function loading(on){
+      if(on){ btn.disabled = true; sendLabel.innerHTML = '<span class="spin"></span>'; }
+      else { btn.disabled = false; sendLabel.textContent = 'Send'; }
+    }
+    async function postJson(url, body){
+      const r = await fetch(url,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+      const text = await r.text();
+      let data; try{ data = JSON.parse(text); }catch{ data = { raw:text }; }
+      return { ok:r.ok, status:r.status, data };
+    }
+    async function send(){
+      const query = q.value.trim();
+      if(!query){ q.focus(); return; }
+      res.textContent = '';
+      loading(true);
+      try{
+        const payload = { query, namespace:NAMESPACE, topK:TOPK };
+        const r = await postJson(WEBHOOK_URL, payload);
+        if(!r.ok){ res.textContent = `HTTP ${r.status}\n` + JSON.stringify(r.data, null, 2); return; }
+        const ans = r.data?.answer ?? r.data?.data ?? r.data?.raw ?? r.data;
+        res.textContent = (typeof ans === 'string') ? ans : JSON.stringify(ans, null, 2);
+      }catch(e){ res.textContent = String(e); }
+      finally{ loading(false); }
+    }
+    btn.addEventListener('click', send);
+    q.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); send(); }});
 
-  async function postJson(url, body){
-    const r = await fetch(url,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
-    const text = await r.text();
-    let data; try{ data = JSON.parse(text); }catch{ data = { raw:text }; }
-    return { ok:r.ok, status:r.status, data };
-  }
-
-  async function send(){
-    const query = q.value.trim();
-    if(!query){ q.focus(); return; }
-    res.textContent = '';
-    loading(true);
-    try{
-      // n8n 쪽에 기대 필드명 맞추기
-      const payload = { keyword: query };
-      const r = await postJson(WEBHOOK_URL, payload);
-
-      if(!r.ok){
-        // ← 백틱으로 템플릿 문자열
-        res.textContent = `HTTP ${r.status}\n` + JSON.stringify(r.data, null, 2);
-        return;
+    (function(){
+      const box = document.getElementById('helpers');
+      const chips = Array.from(box.children);
+      for (let i = chips.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        box.appendChild(chips[j]);
       }
-
-      const ans = r.data?.answer ?? r.data?.data ?? r.data?.raw ?? r.data;
-      // n8n이 HTML을 직접 주면 그대로 렌더링하고 싶다면 아래 3줄로 교체:
-      // document.open('text/html','replace'); document.write(ans); document.close(); return;
-
-      res.textContent = (typeof ans === 'string') ? ans : JSON.stringify(ans, null, 2);
-    }catch(e){
-      res.textContent = String(e);
-    }finally{
-      loading(false);
-    }
-  }
-
-  btn.addEventListener('click', send);
-  q.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); send(); }});
-
-  // helper chips click
-  (function(){
-    const box = document.getElementById('helpers');
-    const chips = Array.from(box.children);
-    for (let i = chips.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      box.appendChild(chips[j]);
-    }
-    chips.forEach((c, idx)=>{ c.style.display = idx < 3 ? 'inline-block' : 'none'; });
-    box.addEventListener('click', (e)=>{
-      const el = e.target.closest('.helper'); if(!el) return;
-      q.value = el.getAttribute('data-text') || '';
-      q.focus();
-    });
-  })();
-</script>
+      chips.forEach((c, idx)=>{ c.style.display = idx < 3 ? 'inline-block' : 'none'; });
+      box.addEventListener('click', (e)=>{
+        const el = e.target.closest('.helper'); if(!el) return;
+        q.value = el.getAttribute('data-text') || '';
+        q.focus();
+      });
+    })();
+  </script>
 </body>
 </html>
