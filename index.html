@@ -89,9 +89,23 @@
 <body>
   <div class="wrap">
     <div class="hero">
-      <div class="sticker" aria-hidden="true">
-        <img src="949cb50d-ee9e-4f3d-bd6b-6d0a305c320f.png" alt="곰돌이"/>
-      </div>
+      <div class="sticker" aria-hidden="true" style="width:148px; height:148px;">
+  <!-- inline SVG mascot -->
+  <svg viewBox="0 0 80 80" width="116" height="116">
+    <defs>
+      <linearGradient id="g" x1="0" x2="1">
+        <stop offset="0" stop-color="#fef3c7"/>
+        <stop offset="1" stop-color="#fde68a"/>
+      </linearGradient>
+    </defs>
+    <circle cx="40" cy="40" r="28" fill="url(#g)" stroke="#fbbf24" stroke-width="2"/>
+    <circle cx="32" cy="35" r="4" fill="#1f2937"/>
+    <circle cx="48" cy="35" r="4" fill="#1f2937"/>
+    <path d="M28 49 Q40 58 52 49" stroke="#1f2937" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M18 26 26 18 M54 18 62 26" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+  </svg>
+</div>
+
       <h1 class="title">어메이징사업부 블로그 자동화</h1>
     </div>
 
@@ -171,3 +185,4 @@
   </script>
 </body>
 </html>
+
