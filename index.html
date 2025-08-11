@@ -65,6 +65,14 @@
       margin-top:14px;background:#fff;border:1px solid #eef2ff;border-radius:16px;padding:14px;min-height:130px;
       white-space:pre-wrap;line-height:1.6
     }
+    /* 안내/진행중 스타일 */
+    .placeholder{color:#9ca3af;font-size:14px}
+    .status{
+      display:flex;align-items:center;gap:10px;font-weight:800;
+      background:linear-gradient(90deg,#7c3aed,#22d3ee,#7c3aed);
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+      background-size:200% 100%;animation:shine 3s linear infinite;
+    }
   </style>
 </head>
 <body>
@@ -104,12 +112,23 @@
   </div>
 
 <script>
-  // Webhook (punycode host recommended)
   const WEBHOOK_URL = "https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook/ask";
   const $ = (s)=>document.querySelector(s);
   const q = $('#q'), btn = $('#send'), res = $('#res'), sendLabel = $('#sendLabel');
 
-  function loading(on){ if(on){ btn.disabled=true; sendLabel.innerHTML='<span class="spin"></span>'; } else { btn.disabled=false; sendLabel.textContent='Send'; } }
+  // 초기 안내 문구
+  res.innerHTML = '<div class="placeholder">결과는 여기에 표시됩니다</div>';
+
+  function loading(on){
+    if(on){
+      btn.disabled = true;
+      sendLabel.innerHTML = '<span class="spin"></span>';
+      res.innerHTML = '<div class="status"><span class="spin"></span>💡 AI가 열심히 작업 중입니다…</div>';
+    } else {
+      btn.disabled = false;
+      sendLabel.textContent = 'Send';
+    }
+  }
 
   async function postJson(url, body){
     const r = await fetch(url,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
@@ -121,9 +140,9 @@
   async function send(){
     const topic = q.value.trim();
     if(topic.length < 2){ q.focus(); res.textContent='Please enter at least 2 characters.'; return; }
-    res.textContent=''; loading(true);
+    loading(true);
     try{
-      const r = await postJson(WEBHOOK_URL, { topic }); // n8n expects 'topic'
+      const r = await postJson(WEBHOOK_URL, { topic });
       if(!r.ok){ res.textContent = `HTTP ${r.status}\n` + JSON.stringify(r.data,null,2); return; }
       const ans = r.data?.answer ?? r.data?.data ?? r.data?.raw ?? r.data ?? { ok:true };
       res.textContent = (typeof ans==='string') ? ans : JSON.stringify(ans,null,2);
@@ -137,21 +156,16 @@
   btn.addEventListener('click', send);
   q.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); send(); }});
 
-  // ---- helpers: pick random 3 every load (true random) ----
   (function(){
     const box = document.getElementById('helpers');
     const chips = Array.from(box.children);
-    // Shuffle on a cloned array (Fisher–Yates)
     const shuffled = [...chips];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
-    // Re-attach in shuffled order
     shuffled.forEach(el => box.appendChild(el));
-    // Show only first 3
     shuffled.forEach((el, idx) => { el.style.display = idx < 3 ? 'inline-block' : 'none'; });
-    // Click → fill input
     box.addEventListener('click', (e)=>{
       const el = e.target.closest('.helper'); if(!el) return;
       q.value = el.getAttribute('data-text') || ''; q.focus();
