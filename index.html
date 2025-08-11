@@ -116,7 +116,6 @@
   const $ = (s)=>document.querySelector(s);
   const q = $('#q'), btn = $('#send'), res = $('#res'), sendLabel = $('#sendLabel');
 
-  // 초기 안내 문구
   res.innerHTML = '<div class="placeholder">결과는 여기에 표시됩니다</div>';
 
   function loading(on){
@@ -137,6 +136,38 @@
     return { ok:r.ok, status:r.status, data };
   }
 
+  function looksLikeHtml(s){
+    return /^\s*<(?:!DOCTYPE|html|body|main|div|section|article|h1|h2|p)\b/i.test(s || "");
+  }
+  function extractEmbeddable(htmlString){
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlString, 'text/html');
+      const main = doc.querySelector('main');
+      if (main) return main.innerHTML;
+      if (doc.body) return doc.body.innerHTML || htmlString;
+      return htmlString;
+    } catch {
+      return htmlString;
+    }
+  }
+  function pickHtmlPayload(data, fallback){
+    if (typeof data?.html_document === 'string') return data.html_document;
+    if (typeof data?.html === 'string') return data.html;
+    if (typeof data?.content === 'string' && looksLikeHtml(data.content)) return data.content;
+    if (typeof data?.body === 'string' && looksLikeHtml(data.body)) return data.body;
+    if (typeof fallback === 'string' && looksLikeHtml(fallback)) return fallback;
+    return null;
+  }
+  function renderHtmlIntoResult(html){
+    const embeddable = extractEmbeddable(html);
+    res.innerHTML = embeddable;
+    res.style.whiteSpace = 'normal';
+    res.style.textAlign = 'left';
+    res.style.display = 'block';
+    res.style.minHeight = 'auto';
+  }
+
   async function send(){
     const topic = q.value.trim();
     if(topic.length < 2){ q.focus(); res.textContent='Please enter at least 2 characters.'; return; }
@@ -145,6 +176,11 @@
       const r = await postJson(WEBHOOK_URL, { topic });
       if(!r.ok){ res.textContent = `HTTP ${r.status}\n` + JSON.stringify(r.data,null,2); return; }
       const ans = r.data?.answer ?? r.data?.data ?? r.data?.raw ?? r.data ?? { ok:true };
+      const html = pickHtmlPayload(r.data, typeof ans==='string' ? ans : '');
+      if (html){
+        renderHtmlIntoResult(html);
+        return;
+      }
       res.textContent = (typeof ans==='string') ? ans : JSON.stringify(ans,null,2);
     }catch(e){
       res.textContent = 'Network error: ' + (e?.message || String(e));
