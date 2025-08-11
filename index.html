@@ -56,18 +56,24 @@
     .send:hover{filter:brightness(1.04)}
     .send:active{transform:translateY(1px)}
     .send[disabled]{opacity:.65;cursor:not-allowed}
-    .spin{width:16px;height:16px;border-radius:50%;border:2px solid #ffffff80;border-top-color:#fff;display:inline-block;animation:spin .8s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
+    .spin-dots::after {
+      content: '';
+      animation: dots 1.5s steps(3, end) infinite;
+    }
+    @keyframes dots {
+      0%   { content: ''; }
+      33%  { content: '.'; }
+      66%  { content: '..'; }
+      100% { content: '...'; }
+    }
     .helpers{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center}
     .helper{ font-size:12px;border:1px dashed #e5e7eb;background:#fff;border-radius:999px;padding:6px 10px;cursor:pointer; }
     .helper:hover{border-color:#c7d2fe}
     .res{
       margin-top:14px;background:#fff;border:1px solid #eef2ff;border-radius:16px;padding:14px;min-height:130px;
       white-space:pre-wrap;line-height:1.6;
-      text-align:center; /* 중앙 정렬 */
-      display:flex;
-      align-items:center;
-      justify-content:center;
+      text-align:center; /* 가운데 정렬 */
+      display:flex;align-items:center;justify-content:center;
     }
   </style>
 </head>
@@ -112,15 +118,15 @@
   const $ = (s)=>document.querySelector(s);
   const q = $('#q'), btn = $('#send'), res = $('#res'), sendLabel = $('#sendLabel');
 
-  function loading(on){ 
-    if(on){ 
-      btn.disabled=true; 
-      sendLabel.innerHTML='<span class="spin"></span>'; 
-      res.textContent='AI가 열심히 작업중입니다...';
-    } else { 
-      btn.disabled=false; 
-      sendLabel.textContent='Send'; 
-    } 
+  function loading(on){
+    if(on){
+      btn.disabled=true;
+      sendLabel.innerHTML='<span class="spin-dots">AI가 열심히 작업중입니다</span>';
+      res.innerHTML='<span class="spin-dots">AI가 열심히 작업중입니다</span>';
+    } else {
+      btn.disabled=false;
+      sendLabel.textContent='Send';
+    }
   }
 
   async function postJson(url, body){
@@ -138,6 +144,7 @@
       const r = await postJson(WEBHOOK_URL, { topic });
       if(!r.ok){ res.textContent = `HTTP ${r.status}\n` + JSON.stringify(r.data,null,2); return; }
       const ans = r.data?.answer ?? r.data?.data ?? r.data?.raw ?? r.data ?? { ok:true };
+      res.style.textAlign = "left"; // 결과는 왼쪽 정렬
       res.textContent = (typeof ans==='string') ? ans : JSON.stringify(ans,null,2);
     }catch(e){
       res.textContent = 'Network error: ' + (e?.message || String(e));
