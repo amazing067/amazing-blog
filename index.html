@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>어메이징사업부 블로그 자동화</title>
   <style>
-    :root{
-      --bg1:#f8fbff; --bg2:#fff7fd; --ink:#111827; --ring:#9b87f5;
-      --accent:#7c3aed; --accent2:#9b87f5;
-    }
+    :root{ --bg1:#f8fbff; --bg2:#fff7fd; --ink:#111827; --ring:#9b87f5; --accent:#7c3aed; --accent2:#9b87f5; }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -62,9 +59,7 @@
     .spin{width:16px;height:16px;border-radius:50%;border:2px solid #ffffff80;border-top-color:#fff;display:inline-block;animation:spin .8s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
     .helpers{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center}
-    .helper{
-      font-size:12px;border:1px dashed #e5e7eb;background:#fff;border-radius:999px;padding:6px 10px;cursor:pointer;
-    }
+    .helper{ font-size:12px;border:1px dashed #e5e7eb;background:#fff;border-radius:999px;padding:6px 10px;cursor:pointer; }
     .helper:hover{border-color:#c7d2fe}
     .res{
       margin-top:14px;background:#fff;border:1px solid #eef2ff;border-radius:16px;padding:14px;min-height:130px;
@@ -109,50 +104,31 @@
   </div>
 
 <script>
-  // Use punycode host for reliability in clients
+  // Webhook (punycode host recommended)
   const WEBHOOK_URL = "https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook/ask";
-
   const $ = (s)=>document.querySelector(s);
-  const q = $('#q');
-  const btn = $('#send');
-  const res = $('#res');
-  const sendLabel = $('#sendLabel');
+  const q = $('#q'), btn = $('#send'), res = $('#res'), sendLabel = $('#sendLabel');
 
-  function loading(on){
-    if(on){ btn.disabled = true; sendLabel.innerHTML = '<span class="spin"></span>'; }
-    else { btn.disabled = false; sendLabel.textContent = 'Send'; }
-  }
+  function loading(on){ if(on){ btn.disabled=true; sendLabel.innerHTML='<span class="spin"></span>'; } else { btn.disabled=false; sendLabel.textContent='Send'; } }
 
   async function postJson(url, body){
-    const r = await fetch(url,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(body)
-    });
+    const r = await fetch(url,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
     const text = await r.text();
-    let data; try{ data = JSON.parse(text); }catch{ data = { raw:text }; }
+    let data; try{ data = JSON.parse(text); } catch { data = { raw:text }; }
     return { ok:r.ok, status:r.status, data };
   }
 
   async function send(){
-    const query = q.value.trim();
-    if(query.length < 2){ q.focus(); res.textContent='Please enter at least 2 characters.'; return; }
-    res.textContent = '';
-    loading(true);
+    const topic = q.value.trim();
+    if(topic.length < 2){ q.focus(); res.textContent='Please enter at least 2 characters.'; return; }
+    res.textContent=''; loading(true);
     try{
-      // IMPORTANT: match n8n expects "topic"
-      const payload = { topic: query };
-      const r = await postJson(WEBHOOK_URL, payload);
-
-      if(!r.ok){
-        res.textContent = `HTTP ${r.status}\n` + JSON.stringify(r.data, null, 2);
-        return;
-      }
-
+      const r = await postJson(WEBHOOK_URL, { topic }); // n8n expects 'topic'
+      if(!r.ok){ res.textContent = `HTTP ${r.status}\n` + JSON.stringify(r.data,null,2); return; }
       const ans = r.data?.answer ?? r.data?.data ?? r.data?.raw ?? r.data ?? { ok:true };
-      res.textContent = (typeof ans === 'string') ? ans : JSON.stringify(ans, null, 2);
+      res.textContent = (typeof ans==='string') ? ans : JSON.stringify(ans,null,2);
     }catch(e){
-      res.textContent = 'Network error: ' + (e && e.message ? e.message : String(e));
+      res.textContent = 'Network error: ' + (e?.message || String(e));
     }finally{
       loading(false);
     }
@@ -161,19 +137,24 @@
   btn.addEventListener('click', send);
   q.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); send(); }});
 
-  // Helpers shuffle and pick top 3
+  // ---- helpers: pick random 3 every load (true random) ----
   (function(){
     const box = document.getElementById('helpers');
     const chips = Array.from(box.children);
-    for (let i = chips.length - 1; i > 0; i--) {
+    // Shuffle on a cloned array (Fisher–Yates)
+    const shuffled = [...chips];
+    for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      box.appendChild(chips[j]);
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
-    chips.forEach((c, idx)=>{ c.style.display = idx < 3 ? 'inline-block' : 'none'; });
+    // Re-attach in shuffled order
+    shuffled.forEach(el => box.appendChild(el));
+    // Show only first 3
+    shuffled.forEach((el, idx) => { el.style.display = idx < 3 ? 'inline-block' : 'none'; });
+    // Click → fill input
     box.addEventListener('click', (e)=>{
       const el = e.target.closest('.helper'); if(!el) return;
-      q.value = el.getAttribute('data-text') || '';
-      q.focus();
+      q.value = el.getAttribute('data-text') || ''; q.focus();
     });
   })();
 </script>
