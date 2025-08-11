@@ -21,10 +21,7 @@
       display:grid;place-items:center;padding:28px;
     }
     .wrap{width:100%;max-width:760px}
-    /* header */
-    .hero{
-      text-align:center; margin-bottom:14px;
-    }
+    .hero{ text-align:center; margin-bottom:14px; }
     .sticker{
       width:74px;height:74px;margin:0 auto 10px; border-radius:18px;display:grid;place-items:center;overflow:hidden;
       background:linear-gradient(135deg,#fef3c7,#fde68a);border:1px solid #fcd34d;
@@ -38,14 +35,10 @@
       letter-spacing:-0.3px;
     }
     @keyframes shine{0%{background-position:0% 50%}100%{background-position:200% 50%}}
-
-    /* card */
     .card{
       background:#ffffffcc;border:1px solid #eef2ff;border-radius:22px;backdrop-filter:blur(8px);
       box-shadow:0 12px 34px #00000012;padding:20px 18px 16px;
     }
-
-    /* compact input */
     .ask{
       display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid #e5e7eb;
       border-radius:999px;padding:10px 10px 10px 14px; box-shadow:0 2px 8px #00000008;
@@ -68,14 +61,11 @@
     .send[disabled]{opacity:.65;cursor:not-allowed}
     .spin{width:16px;height:16px;border-radius:50%;border:2px solid #ffffff80;border-top-color:#fff;display:inline-block;animation:spin .8s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
-
-    /* helpers (randomized each load) */
     .helpers{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center}
     .helper{
       font-size:12px;border:1px dashed #e5e7eb;background:#fff;border-radius:999px;padding:6px 10px;cursor:pointer;
     }
     .helper:hover{border-color:#c7d2fe}
-
     .res{
       margin-top:14px;background:#fff;border:1px solid #eef2ff;border-radius:16px;padding:14px;min-height:130px;
       white-space:pre-wrap;line-height:1.6
@@ -86,7 +76,6 @@
   <div class="wrap">
     <div class="hero">
       <div class="sticker" aria-hidden="true">
-        <!-- inline SVG mascot -->
         <svg viewBox="0 0 80 80" width="58" height="58">
           <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#fef3c7"/><stop offset="1" stop-color="#fde68a"/></linearGradient></defs>
           <circle cx="40" cy="40" r="28" fill="url(#g)" stroke="#fbbf24" stroke-width="2"/>
@@ -104,7 +93,6 @@
         <button id="send" class="send" type="button"><span id="sendLabel">Send</span> 🚀</button>
       </div>
 
-      <!-- 준비된 추천 문구: JS는 문자열을 만들지 않고 DOM만 섞음 -->
       <div class="helpers" id="helpers">
         <button class="helper" data-text="실손보험 청구 서류 요약해줘">실손 서류 요약</button>
         <button class="helper" data-text="항암 중입자 치료 보장 핵심만 알려줘">중입자치료 핵심</button>
@@ -121,6 +109,7 @@
   </div>
 
 <script>
+  // Use punycode host for reliability in clients
   const WEBHOOK_URL = "https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook/ask";
 
   const $ = (s)=>document.querySelector(s);
@@ -135,7 +124,11 @@
   }
 
   async function postJson(url, body){
-    const r = await fetch(url,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+    const r = await fetch(url,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
     const text = await r.text();
     let data; try{ data = JSON.parse(text); }catch{ data = { raw:text }; }
     return { ok:r.ok, status:r.status, data };
@@ -143,27 +136,23 @@
 
   async function send(){
     const query = q.value.trim();
-    if(!query){ q.focus(); return; }
+    if(query.length < 2){ q.focus(); res.textContent='Please enter at least 2 characters.'; return; }
     res.textContent = '';
     loading(true);
     try{
-      // n8n 쪽에 기대 필드명 맞추기
-      const payload = { keyword: query };
+      // IMPORTANT: match n8n expects "topic"
+      const payload = { topic: query };
       const r = await postJson(WEBHOOK_URL, payload);
 
       if(!r.ok){
-        // ← 백틱으로 템플릿 문자열
         res.textContent = `HTTP ${r.status}\n` + JSON.stringify(r.data, null, 2);
         return;
       }
 
-      const ans = r.data?.answer ?? r.data?.data ?? r.data?.raw ?? r.data;
-      // n8n이 HTML을 직접 주면 그대로 렌더링하고 싶다면 아래 3줄로 교체:
-      // document.open('text/html','replace'); document.write(ans); document.close(); return;
-
+      const ans = r.data?.answer ?? r.data?.data ?? r.data?.raw ?? r.data ?? { ok:true };
       res.textContent = (typeof ans === 'string') ? ans : JSON.stringify(ans, null, 2);
     }catch(e){
-      res.textContent = String(e);
+      res.textContent = 'Network error: ' + (e && e.message ? e.message : String(e));
     }finally{
       loading(false);
     }
@@ -172,7 +161,7 @@
   btn.addEventListener('click', send);
   q.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); send(); }});
 
-  // helper chips click
+  // Helpers shuffle and pick top 3
   (function(){
     const box = document.getElementById('helpers');
     const chips = Array.from(box.children);
@@ -190,4 +179,3 @@
 </script>
 </body>
 </html>
-
