@@ -73,7 +73,11 @@
       -webkit-background-clip:text;background-clip:text;color:transparent;
       background-size:200% 100%;animation:shine 3s linear infinite;
     }
-    .test-indicator{position:fixed;top:10px;right:10px;background:#ff6b35;color:#fff;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:bold;z-index:1000;}
+    /* 테스트 모드 표시 */
+    .test-mode-indicator{
+      position:fixed;top:10px;right:10px;background:#ff6b35;color:#fff;padding:4px 8px;
+      border-radius:4px;font-size:12px;font-weight:bold;z-index:1000;
+    }
   </style>
 </head>
 <body>
@@ -113,20 +117,27 @@
   </div>
 
 <script>
-  // 테스트 모드 확인
-  const isTest = window.location.search.includes('test=true') || window.location.search.includes('debug=true');
-  
   // URL 설정
-  const WEBHOOK_URL = isTest ? 
-    "https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook-test/ask" : 
-    "https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook/ask";
+  const PRODUCTION_URL = "https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook/ask";
+  const TEST_URL = "https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook-test/ask";
 
-  // 테스트 모드 표시
-  if (isTest) {
+  // 테스트 모드 체크 함수
+  function isTestMode() {
+    return window.location.search.includes('debug=true') || 
+           window.location.search.includes('test=true');
+  }
+
+  // 사용할 URL 결정
+  const WEBHOOK_URL = isTestMode() ? TEST_URL : PRODUCTION_URL;
+
+  // 테스트 모드일 때 표시기 추가
+  if (isTestMode()) {
     const indicator = document.createElement('div');
-    indicator.className = 'test-indicator';
+    indicator.className = 'test-mode-indicator';
     indicator.textContent = 'TEST MODE';
     document.body.appendChild(indicator);
+    console.log('🔧 테스트 모드 활성화 - n8n Editor에서 실시간 확인 가능');
+    console.log('📡 사용 중인 웹훅 URL:', WEBHOOK_URL);
   }
 
   const $ = (s)=>document.querySelector(s);
