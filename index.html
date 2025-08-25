@@ -73,6 +73,7 @@
       -webkit-background-clip:text;background-clip:text;color:transparent;
       background-size:200% 100%;animation:shine 3s linear infinite;
     }
+    .test-indicator{position:fixed;top:10px;right:10px;background:#ff6b35;color:#fff;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:bold;z-index:1000;}
   </style>
 </head>
 <body>
@@ -112,7 +113,22 @@
   </div>
 
 <script>
-  const WEBHOOK_URL = "https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook/ask";
+  // 테스트 모드 확인
+  const isTest = window.location.search.includes('test=true') || window.location.search.includes('debug=true');
+  
+  // URL 설정
+  const WEBHOOK_URL = isTest ? 
+    "https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook-test/ask" : 
+    "https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook/ask";
+
+  // 테스트 모드 표시
+  if (isTest) {
+    const indicator = document.createElement('div');
+    indicator.className = 'test-indicator';
+    indicator.textContent = 'TEST MODE';
+    document.body.appendChild(indicator);
+  }
+
   const $ = (s)=>document.querySelector(s);
   const q = $('#q'), btn = $('#send'), res = $('#res'), sendLabel = $('#sendLabel');
 
