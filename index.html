@@ -112,6 +112,7 @@
   </div>
 
 <script>
+  // 테스트 모드 확인
   function isTestMode() {
     return window.location.search.includes('test=true') || window.location.search.includes('debug=true');
   }
@@ -128,7 +129,6 @@
 
   const $ = (s)=>document.querySelector(s);
   const q = $('#q'), btn = $('#send'), res = $('#res'), sendLabel = $('#sendLabel');
-
   res.innerHTML = '<div class="placeholder">결과는 여기에 표시됩니다</div>';
 
   function loading(on){
@@ -149,37 +149,51 @@
     return { ok:r.ok, status:r.status, data };
   }
 
+  // ---- HTML 감지/복원/렌더 (수정 버전) ----
   function looksLikeHtml(s){
-    return /^\s*<(?:!DOCTYPE|html|body|main|div|section|article|h1|h2|p)\b/i.test(s || "");
+    return /^\s*<(?:!DOCTYPE|html|body|main|div|section|article|h1|h2|p|iframe)\b/i.test(s || "");
+  }
+  function decodeHtmlEntities(str) {
+    if (typeof str !== 'string') return str;
+    const el = document.createElement("textarea");
+    el.innerHTML = str;
+    return el.value;
   }
   function extractEmbeddable(htmlString){
     try {
+      const s = String(htmlString || "");
+      if (/^\s*<iframe\b/i.test(s)) return s; // iframe은 그대로
       const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlString, 'text/html');
+      const doc = parser.parseFromString(s, 'text/html');
       const main = doc.querySelector('main');
       if (main) return main.innerHTML;
-      if (doc.body) return doc.body.innerHTML || htmlString;
-      return htmlString;
+      if (doc.body) return doc.body.innerHTML || s;
+      return s;
     } catch {
       return htmlString;
     }
   }
-
-  function decodeHtmlEntities(str) {
-    const txt = document.createElement("textarea");
-    txt.innerHTML = str;
-    return txt.value;
-  }
-
   function pickHtmlPayload(data, fallback){
-    if (typeof data?.html_document === 'string') return data.html_document;
-    if (typeof data?.html === 'string') return data.html;
-    if (typeof data?.content === 'string' && looksLikeHtml(data.content)) return data.content;
-    if (typeof data?.body === 'string' && looksLikeHtml(data.body)) return data.body;
-    if (typeof fallback === 'string' && looksLikeHtml(fallback)) return fallback;
+    const candidates = [
+      data?.html_document,
+      data?.html,
+      data?.content,
+      data?.body,
+      data?.answer?.html_document,
+      data?.answer?.html,
+      data?.data?.html_document,
+      data?.data?.html,
+      data?.json?.html_document,
+      data?.json?.html,
+      fallback
+    ].filter(v => typeof v === 'string');
+
+    for (let raw of candidates){
+      const dec = /&lt;|&gt;|&amp;|&quot;|&#39;/.test(raw) ? decodeHtmlEntities(raw) : raw;
+      if (looksLikeHtml(dec)) return dec;
+    }
     return null;
   }
-
   function renderHtmlIntoResult(html){
     const cleaned = decodeHtmlEntities(html);
     const embeddable = extractEmbeddable(cleaned);
@@ -197,6 +211,7 @@
     try{
       const r = await postJson(WEBHOOK_URL, { topic });
       if(!r.ok){ res.textContent = `HTTP ${r.status}\n` + JSON.stringify(r.data,null,2); return; }
+
       const ans = r.data?.answer ?? r.data?.data ?? r.data?.raw ?? r.data ?? { ok:true };
       const html = pickHtmlPayload(r.data, typeof ans==='string' ? ans : '');
       if (html){
