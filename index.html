@@ -134,7 +134,9 @@
   function isTestMode() {
     return window.location.search.includes('test=true') || window.location.search.includes('debug=true');
   }
-  const WEBHOOK_URL = isTestMode() ? "/webhook-test/ask" : "/webhook/ask";
+  const WEBHOOK_URL = isTestMode()
+  ? "https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook-test/ask"
+  : "https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook/ask";
 
   if (isTestMode()) {
     const indicator = document.createElement('div');
@@ -274,3 +276,4 @@
 </script>
 </body>
 </html>
+
