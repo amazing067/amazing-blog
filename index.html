@@ -17,7 +17,7 @@
         linear-gradient(180deg, var(--bg1), #fff);
       display:grid;place-items:center;padding:28px;
     }
-    .wrap{width:100%;max-width:860px}
+    .wrap{width:100%;max-width:760px}
     .hero{ text-align:center; margin-bottom:14px; }
     .sticker{
       width:74px;height:74px;margin:0 auto 10px; border-radius:18px;display:grid;place-items:center;overflow:hidden;
@@ -73,27 +73,6 @@
       background-size:200% 100%;animation:shine 3s linear infinite;
     }
     .test-indicator{position:fixed;top:10px;right:10px;background:#ff6b35;color:#fff;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:bold;z-index:1000;}
-
-    /* ===== Generator sections ===== */
-    .gen-wrap{margin-top:18px}
-    .gen-title{font-size:20px;font-weight:900;margin:0 0 8px}
-    .gen-card{background:#ffffffcc;border:1px solid #eef2ff;border-radius:18px;padding:16px;box-shadow:0 10px 26px #00000010}
-    .gen-row{display:grid;grid-template-columns:1fr;gap:10px}
-    @media (min-width:740px){ .gen-row{grid-template-columns:1.2fr .8fr} }
-    .gen-label{display:block;font-size:12px;color:#6b7280;margin-bottom:6px}
-    .gen-input, .gen-url{
-      width:100%;padding:12px 12px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;color:#111827;outline:none
-    }
-    .gen-hint{font-size:12px;color:#8892a6;margin-top:6px}
-    .gen-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .gen-switch{display:flex;align-items:center;gap:8px}
-    .gen-small{font-size:12px}
-    .gen-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;color:#111827;cursor:pointer}
-    .gen-btn.primary{border-color:#2b4a7a;background:linear-gradient(180deg,#1a3a6d,#132a4f);color:#eaf2ff}
-    .gen-out{word-break:break-all;background:#0f1421;color:#e7e9ee;border:1px dashed #2a3550;border-radius:12px;padding:12px;margin-top:10px}
-    .gen-pill{display:inline-block;padding:4px 8px;border:1px solid #e5e7eb;border-radius:999px;color:#6b7280;font-size:12px;margin-top:8px}
-    .gen-grid{display:grid;gap:16px}
-    @media (min-width:860px){ .gen-grid{grid-template-columns:1fr 1fr} }
   </style>
 </head>
 <body>
@@ -110,6 +89,20 @@
       </div>
       <h1 class="title">어메이징사업부 블로그 자동화</h1>
     </div>
+
+    <!-- ▼▼▼ 추가된: 초간단 카카오톡 채널 링크 생성기 (이미지/제목 밑) ▼▼▼ -->
+    <div class="card" id="chat-link-maker">
+      <label style="display:block;font-size:12px;color:#6b7280;margin-bottom:8px">키워드 (한글 가능)</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="k-key" type="text" placeholder="예) 수술비보험"
+               style="flex:1;padding:12px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;outline:none"/>
+        <button id="k-make" class="send" type="button">링크 생성</button>
+      </div>
+      <div id="k-result" class="placeholder" style="margin-top:10px;word-break:break-all">
+        결과 링크가 여기에 표시됩니다
+      </div>
+    </div>
+    <!-- ▲▲▲ 추가 끝 ▲▲▲ -->
 
     <div class="card">
       <div class="ask">
@@ -130,128 +123,10 @@
 
       <div id="res" class="res"></div>
     </div>
-
-    <!-- ===== Two Generators (A: Direct Kakao, B: Redirect via n8n) ===== -->
-    <div class="gen-wrap" id="generator">
-      <h2 class="gen-title">카카오 채널 링크 생성기 (두 가지 방식)</h2>
-      <div class="gen-grid">
-        <!-- Generator A: Direct Kakao -->
-        <div class="gen-card">
-          <h3 class="gen-title" style="font-size:16px;margin-top:0">A) 카카오 채널에 직접 연결</h3>
-          <label class="gen-label">기본 채팅 링크 (브라우저 저장)</label>
-          <div class="gen-row">
-            <input id="genA-base" class="gen-url" type="url" placeholder="예) http://pf.kakao.com/_JxmxaJn/chat" />
-            <button class="gen-btn" id="genA-saveBase">저장</button>
-          </div>
-          <div class="gen-hint">예: http://pf.kakao.com/_JxmxaJn/chat</div>
-          <div style="height:10px"></div>
-          <div class="gen-row">
-            <div>
-              <label class="gen-label">키워드 (한글 가능)</label>
-              <input id="genA-keyword" class="gen-input" type="text" placeholder="예) 수술비보험" />
-            </div>
-            <div>
-              <label class="gen-label">ref 직접 지정 (선택)</label>
-              <input id="genA-customRef" class="gen-input" type="text" placeholder="미입력 시 키워드 사용" />
-            </div>
-          </div>
-          <div class="gen-row2" style="margin-top:6px">
-            <div class="gen-switch">
-              <input type="checkbox" id="genA-useUtm" />
-              <label for="genA-useUtm" class="gen-small">UTM 사용</label>
-            </div>
-            <div class="gen-switch">
-              <input type="checkbox" id="genA-asciiRef" />
-              <label for="genA-asciiRef" class="gen-small">ASCII ref (영문/숫자/하이픈)</label>
-            </div>
-          </div>
-          <div class="gen-row" style="margin-top:8px">
-            <div class="gen-row2">
-              <div>
-                <label class="gen-label">utm_source</label>
-                <input id="genA-utmSource" class="gen-input" type="text" placeholder="예) blog" />
-              </div>
-              <div>
-                <label class="gen-label">utm_medium</label>
-                <input id="genA-utmMedium" class="gen-input" type="text" placeholder="예) referral" />
-              </div>
-            </div>
-            <div>
-              <label class="gen-label">utm_content</label>
-              <input id="genA-utmContent" class="gen-input" type="text" placeholder="미입력 시 ref 값 사용" />
-            </div>
-          </div>
-          <div style="height:10px"></div>
-          <div class="gen-row2">
-            <button class="gen-btn primary" id="genA-generate">링크 생성</button>
-            <button class="gen-btn" id="genA-copy">복사</button>
-          </div>
-          <div class="gen-out" id="genA-output">여기에 생성된 링크가 표시됩니다.</div>
-          <span class="gen-pill" id="genA-status">idle</span>
-        </div>
-
-        <!-- Generator B: Redirect via n8n -->
-        <div class="gen-card">
-          <h3 class="gen-title" style="font-size:16px;margin-top:0">B) n8n 리디렉터 경유 (로그 기록)</h3>
-          <label class="gen-label">리디렉터 기본 링크 (브라우저 저장)</label>
-          <div class="gen-row">
-            <input id="genB-base" class="gen-url" type="url" placeholder="예) https://blog.어메이징사업부.com/kakao-redirect" />
-            <button class="gen-btn" id="genB-saveBase">저장</button>
-          </div>
-          <div class="gen-hint">예: https://blog.어메이징사업부.com/kakao-redirect</div>
-          <div style="height:10px"></div>
-          <div class="gen-row">
-            <div>
-              <label class="gen-label">키워드 (한글 가능)</label>
-              <input id="genB-keyword" class="gen-input" type="text" placeholder="예) 수술비보험" />
-            </div>
-            <div>
-              <label class="gen-label">ref 직접 지정 (선택)</label>
-              <input id="genB-customRef" class="gen-input" type="text" placeholder="미입력 시 키워드 사용" />
-            </div>
-          </div>
-          <div class="gen-row2" style="margin-top:6px">
-            <div class="gen-switch">
-              <input type="checkbox" id="genB-useUtm" />
-              <label for="genB-useUtm" class="gen-small">UTM 사용</label>
-            </div>
-            <div class="gen-switch">
-              <input type="checkbox" id="genB-asciiRef" />
-              <label for="genB-asciiRef" class="gen-small">ASCII ref (영문/숫자/하이픈)</label>
-            </div>
-          </div>
-          <div class="gen-row" style="margin-top:8px">
-            <div class="gen-row2">
-              <div>
-                <label class="gen-label">utm_source</label>
-                <input id="genB-utmSource" class="gen-input" type="text" placeholder="예) blog" />
-              </div>
-              <div>
-                <label class="gen-label">utm_medium</label>
-                <input id="genB-utmMedium" class="gen-input" type="text" placeholder="예) referral" />
-              </div>
-            </div>
-            <div>
-              <label class="gen-label">utm_content</label>
-              <input id="genB-utmContent" class="gen-input" type="text" placeholder="미입력 시 ref 값 사용" />
-            </div>
-          </div>
-          <div style="height:10px"></div>
-          <div class="gen-row2">
-            <button class="gen-btn primary" id="genB-generate">링크 생성</button>
-            <button class="gen-btn" id="genB-copy">복사</button>
-          </div>
-          <div class="gen-out" id="genB-output">여기에 생성된 링크가 표시됩니다.</div>
-          <span class="gen-pill" id="genB-status">idle</span>
-        </div>
-      </div>
-    </div>
-    <!-- ===== /Generators ===== -->
-
   </div>
 
 <script>
-  // Test mode
+  // 테스트 모드 확인
   function isTestMode() {
     return window.location.search.includes('test=true') || window.location.search.includes('debug=true');
   }
@@ -262,8 +137,8 @@
     indicator.className = 'test-indicator';
     indicator.textContent = 'TEST MODE';
     document.body.appendChild(indicator);
-    console.log('Test mode enabled');
-    console.log('Using webhook URL:', WEBHOOK_URL);
+    console.log('🔧 테스트 모드 활성화 - n8n Editor에서 실시간 확인 가능');
+    console.log('📡 사용 중인 웹훅 URL:', WEBHOOK_URL);
   }
 
   const $ = (s)=>document.querySelector(s);
@@ -274,7 +149,7 @@
     if(on){
       btn.disabled = true;
       sendLabel.innerHTML = '<span class="spin"></span>';
-      res.innerHTML = '<div class="status"><span class="spin"></span>Working…</div>';
+      res.innerHTML = '<div class="status"><span class="spin"></span>💡 AI가 열심히 작업 중입니다…</div>';
     } else {
       btn.disabled = false;
       sendLabel.textContent = 'Send';
@@ -288,6 +163,7 @@
     return { ok:r.ok, status:r.status, data };
   }
 
+  // ---- HTML 감지/복원/렌더 (수정 버전) ----
   function looksLikeHtml(s){
     return /^\s*<(?:!DOCTYPE|html|body|main|div|section|article|h1|h2|p|iframe)\b/i.test(s || "");
   }
@@ -300,7 +176,7 @@
   function extractEmbeddable(htmlString){
     try {
       const s = String(htmlString || "");
-      if (/^\s*<iframe\b/i.test(s)) return s;
+      if (/^\s*<iframe\b/i.test(s)) return s; // iframe은 그대로
       const parser = new DOMParser();
       const doc = parser.parseFromString(s, 'text/html');
       const main = doc.querySelector('main');
@@ -383,212 +259,27 @@
     });
   })();
 
-  /* ===== Generator A: Direct Kakao ===== */
+  /* ---- Simple Kakao Chat Link Generator (PROD redirect base) ---- */
   (function(){
-    function toAsciiSlug(s) {
-      return (s || "")
-        .toString()
-        .normalize("NFKD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^A-Za-z0-9\s\-_.]/g, " ")
-        .replace(/[\s_]+/g, "-")
-        .replace(/-+/g, "-")
-        .replace(/^-|-$/g, "")
-        .toLowerCase()
-        .slice(0, 80) || "ref";
-    }
-    const enc = (s)=>encodeURIComponent(s || "");
+    const BASE = 'https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook/kakao-redirect';
+    const key = document.getElementById('k-key');
+    const btn = document.getElementById('k-make');
+    const out = document.getElementById('k-result');
 
-    function buildUrl(base, ref, useUtm, utmSource, utmMedium, utmContent) {
-      if (!base) return "";
-      const hasQ = base.includes("?");
-      const join = hasQ ? "&" : "?";
-      const q = [`ref=${enc(ref)}`];
-      if (useUtm) {
-        if (utmSource) q.push(`utm_source=${enc(utmSource)}`);
-        if (utmMedium) q.push(`utm_medium=${enc(utmMedium)}`);
-        q.push(`utm_content=${enc(utmContent || ref)}`);
+    function make(){
+      const kw = (key.value || '').trim();
+      if(!kw){
+        out.textContent = '키워드를 입력하세요';
+        out.classList.add('placeholder');
+        return;
       }
-      return base + join + q.join("&");
+      const url = BASE + (BASE.includes('?') ? '&' : '?') + 'ref=' + encodeURIComponent(kw);
+      out.innerHTML = `<a href="${url}" target="_blank" rel="noopener">${url}</a>`;
+      out.classList.remove('placeholder');
     }
 
-    const $base = document.getElementById("genA-base");
-    const $saveBase = document.getElementById("genA-saveBase");
-    const $keyword = document.getElementById("genA-keyword");
-    const $customRef = document.getElementById("genA-customRef");
-    const $useUtm = document.getElementById("genA-useUtm");
-    const $asciiRef = document.getElementById("genA-asciiRef");
-    const $utmSource = document.getElementById("genA-utmSource");
-    const $utmMedium = document.getElementById("genA-utmMedium");
-    const $utmContent = document.getElementById("genA-utmContent");
-    const $genBtn = document.getElementById("genA-generate");
-    const $copyBtn = document.getElementById("genA-copy");
-    const $out = document.getElementById("genA-output");
-    const $status = document.getElementById("genA-status");
-
-    (function init(){
-      const savedBase = localStorage.getItem("kakao_base_chat_link");
-      if (savedBase) $base.value = savedBase;
-      if (!$utmSource.value) $utmSource.value = "blog";
-      if (!$utmMedium.value) $utmMedium.value = "referral";
-      const onChange = ()=>live();
-      [$keyword,$customRef,$useUtm,$asciiRef,$utmSource,$utmMedium,$utmContent].forEach(el=>{
-        el.addEventListener(el.type === 'checkbox' ? 'change' : 'input', onChange);
-      });
-      live();
-    })();
-
-    $saveBase.addEventListener("click", () => {
-      const v = ($base.value || "").trim();
-      if (!/^https?:\/\//i.test(v)) { alert("Enter a valid URL"); return; }
-      localStorage.setItem("kakao_base_chat_link", v);
-      $status.textContent = "base saved";
-      setTimeout(()=>{$status.textContent="idle"}, 900);
-      live();
-    });
-
-    function currentRef() {
-      const raw = ($customRef.value || $keyword.value || "").trim();
-      if (!raw) return "";
-      if ($asciiRef.checked) return toAsciiSlug(raw);
-      return raw;
-    }
-
-    function live() {
-      const base = ($base.value || "").trim();
-      const ref = currentRef();
-      const url = buildUrl(
-        base,
-        ref,
-        $useUtm.checked,
-        $utmSource.value.trim(),
-        $utmMedium.value.trim(),
-        $utmContent.value.trim()
-      );
-      $out.textContent = url || "Generated link will appear here.";
-      $status.textContent = url ? "ready" : "idle";
-    }
-
-    $genBtn.addEventListener("click", live);
-    $copyBtn.addEventListener("click", async () => {
-      const text = $out.textContent.trim();
-      if (!text || text.startsWith("Generated link")) return;
-      try {
-        await navigator.clipboard.writeText(text);
-        $status.textContent = "copied";
-        setTimeout(()=>{$status.textContent="ready"}, 900);
-      } catch(e) {
-        const t = document.createElement("textarea");
-        t.value = text; document.body.appendChild(t);
-        t.select(); document.execCommand("copy"); document.body.removeChild(t);
-        $status.textContent = "copied";
-        setTimeout(()=>{$status.textContent="ready"}, 900);
-      }
-    });
-  })();
-
-  /* ===== Generator B: Redirect via n8n ===== */
-  (function(){
-    function toAsciiSlug(s) {
-      return (s || "")
-        .toString()
-        .normalize("NFKD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^A-Za-z0-9\s\-_.]/g, " ")
-        .replace(/[\s_]+/g, "-")
-        .replace(/-+/g, "-")
-        .replace(/^-|-$/g, "")
-        .toLowerCase()
-        .slice(0, 80) || "ref";
-    }
-    const enc = (s)=>encodeURIComponent(s || "");
-
-    function buildUrl(base, ref, useUtm, utmSource, utmMedium, utmContent) {
-      if (!base) return "";
-      const hasQ = base.includes("?");
-      const join = hasQ ? "&" : "?";
-      const q = [`ref=${enc(ref)}`];
-      if (useUtm) {
-        if (utmSource) q.push(`utm_source=${enc(utmSource)}`);
-        if (utmMedium) q.push(`utm_medium=${enc(utmMedium)}`);
-        q.push(`utm_content=${enc(utmContent || ref)}`);
-      }
-      return base + join + q.join("&");
-    }
-
-    const $base = document.getElementById("genB-base");
-    const $saveBase = document.getElementById("genB-saveBase");
-    const $keyword = document.getElementById("genB-keyword");
-    const $customRef = document.getElementById("genB-customRef");
-    const $useUtm = document.getElementById("genB-useUtm");
-    const $asciiRef = document.getElementById("genB-asciiRef");
-    const $utmSource = document.getElementById("genB-utmSource");
-    const $utmMedium = document.getElementById("genB-utmMedium");
-    const $utmContent = document.getElementById("genB-utmContent");
-    const $genBtn = document.getElementById("genB-generate");
-    const $copyBtn = document.getElementById("genB-copy");
-    const $out = document.getElementById("genB-output");
-    const $status = document.getElementById("genB-status");
-
-    (function init(){
-      const savedBase = localStorage.getItem("redirector_base_link");
-      if (savedBase) $base.value = savedBase;
-      if (!$utmSource.value) $utmSource.value = "blog";
-      if (!$utmMedium.value) $utmMedium.value = "referral";
-      const onChange = ()=>live();
-      [$keyword,$customRef,$useUtm,$asciiRef,$utmSource,$utmMedium,$utmContent].forEach(el=>{
-        el.addEventListener(el.type === 'checkbox' ? 'change' : 'input', onChange);
-      });
-      live();
-    })();
-
-    $saveBase.addEventListener("click", () => {
-      const v = ($base.value || "").trim();
-      if (!/^https?:\/\//i.test(v)) { alert("Enter a valid URL"); return; }
-      localStorage.setItem("redirector_base_link", v);
-      $status.textContent = "base saved";
-      setTimeout(()=>{$status.textContent="idle"}, 900);
-      live();
-    });
-
-    function currentRef() {
-      const raw = ($customRef.value || $keyword.value || "").trim();
-      if (!raw) return "";
-      if ($asciiRef.checked) return toAsciiSlug(raw);
-      return raw;
-    }
-
-    function live() {
-      const base = ($base.value || "").trim();
-      const ref = currentRef();
-      const url = buildUrl(
-        base,
-        ref,
-        $useUtm.checked,
-        $utmSource.value.trim(),
-        $utmMedium.value.trim(),
-        $utmContent.value.trim()
-      );
-      $out.textContent = url || "Generated link will appear here.";
-      $status.textContent = url ? "ready" : "idle";
-    }
-
-    $genBtn.addEventListener("click", live);
-    $copyBtn.addEventListener("click", async () => {
-      const text = $out.textContent.trim();
-      if (!text || text.startsWith("Generated link")) return;
-      try {
-        await navigator.clipboard.writeText(text);
-        $status.textContent = "copied";
-        setTimeout(()=>{$status.textContent="ready"}, 900);
-      } catch(e) {
-        const t = document.createElement("textarea");
-        t.value = text; document.body.appendChild(t);
-        t.select(); document.execCommand("copy"); document.body.removeChild(t);
-        $status.textContent = "copied";
-        setTimeout(()=>{$status.textContent="ready"}, 900);
-      }
-    });
+    btn.addEventListener('click', make);
+    key.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); make(); }});
   })();
 </script>
 </body>
