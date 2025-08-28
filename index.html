@@ -41,7 +41,6 @@
       border-radius:999px;padding:10px 10px 10px 14px; box-shadow:0 2px 8px #00000008;
       transition:box-shadow .2s,border .2s;
     }
-    .ask:focus-within{border-color:var(--ring); box-shadow:0 0 0 4px #9b87f522}
     .ask input{
       flex:1;border:0;outline:none;font-size:15px;background:transparent;
       padding:6px 2px; min-height:22px;
@@ -60,7 +59,6 @@
     @keyframes spin{to{transform:rotate(360deg)}}
     .helpers{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center}
     .helper{ font-size:12px;border:1px dashed #e5e7eb;background:#fff;border-radius:999px;padding:6px 10px;cursor:pointer; }
-    .helper:hover{border-color:#c7d2fe}
     .res{
       margin-top:14px;background:#fff;border:1px solid #eef2ff;border-radius:16px;padding:14px;min-height:130px;
       white-space:pre-wrap;line-height:1.6
@@ -90,16 +88,22 @@
       <h1 class="title">어메이징사업부 블로그 자동화</h1>
     </div>
 
-    <!-- ▼▼▼ 추가된: 초간단 카카오톡 채널 링크 생성기 (이미지/제목 밑) ▼▼▼ -->
+    <!-- ▼▼▼ 초간단 카카오톡 채널 링크 생성기 (이미지/제목 아래) ▼▼▼ -->
     <div class="card" id="chat-link-maker">
-      <label style="display:block;font-size:12px;color:#6b7280;margin-bottom:8px">키워드 (한글 가능)</label>
+      <label style="display:block;font-size:14px;font-weight:800;margin-bottom:10px">
+        카카오톡 블로그 채널링크 🔗
+      </label>
       <div style="display:flex;gap:8px;align-items:center">
-        <input id="k-key" type="text" placeholder="예) 수술비보험"
+        <input id="k-key" type="text" placeholder=""
                style="flex:1;padding:12px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;outline:none"/>
-        <button id="k-make" class="send" type="button">링크 생성</button>
+        <button id="k-make" class="send" type="button">생성 ✨</button>
       </div>
-      <div id="k-result" class="placeholder" style="margin-top:10px;word-break:break-all">
-        결과 링크가 여기에 표시됩니다
+
+      <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
+        <div id="k-result" class="placeholder" style="flex:1;word-break:break-all">
+          결과 링크가 여기에 표시됩니다
+        </div>
+        <button id="k-copy" class="send" type="button" style="white-space:nowrap">복사 📋</button>
       </div>
     </div>
     <!-- ▲▲▲ 추가 끝 ▲▲▲ -->
@@ -163,7 +167,7 @@
     return { ok:r.ok, status:r.status, data };
   }
 
-  // ---- HTML 감지/복원/렌더 (수정 버전) ----
+  // ---- HTML 감지/복원/렌더 ----
   function looksLikeHtml(s){
     return /^\s*<(?:!DOCTYPE|html|body|main|div|section|article|h1|h2|p|iframe)\b/i.test(s || "");
   }
@@ -176,30 +180,21 @@
   function extractEmbeddable(htmlString){
     try {
       const s = String(htmlString || "");
-      if (/^\s*<iframe\b/i.test(s)) return s; // iframe은 그대로
+      if (/^\s*<iframe\b/i.test(s)) return s;
       const parser = new DOMParser();
       const doc = parser.parseFromString(s, 'text/html');
       const main = doc.querySelector('main');
       if (main) return main.innerHTML;
       if (doc.body) return doc.body.innerHTML || s;
       return s;
-    } catch {
-      return htmlString;
-    }
+    } catch { return htmlString; }
   }
   function pickHtmlPayload(data, fallback){
     const candidates = [
-      data?.html_document,
-      data?.html,
-      data?.content,
-      data?.body,
-      data?.answer?.html_document,
-      data?.answer?.html,
-      data?.data?.html_document,
-      data?.data?.html,
-      data?.json?.html_document,
-      data?.json?.html,
-      fallback
+      data?.html_document, data?.html, data?.content, data?.body,
+      data?.answer?.html_document, data?.answer?.html,
+      data?.data?.html_document, data?.data?.html,
+      data?.json?.html_document, data?.json?.html, fallback
     ].filter(v => typeof v === 'string');
 
     for (let raw of candidates){
@@ -225,48 +220,26 @@
     try{
       const r = await postJson(WEBHOOK_URL, { topic });
       if(!r.ok){ res.textContent = `HTTP ${r.status}\n` + JSON.stringify(r.data,null,2); return; }
-
       const ans = r.data?.answer ?? r.data?.data ?? r.data?.raw ?? r.data ?? { ok:true };
       const html = pickHtmlPayload(r.data, typeof ans==='string' ? ans : '');
-      if (html){
-        renderHtmlIntoResult(html);
-        return;
-      }
+      if (html){ renderHtmlIntoResult(html); return; }
       res.textContent = (typeof ans==='string') ? ans : JSON.stringify(ans,null,2);
     }catch(e){
       res.textContent = 'Network error: ' + (e?.message || String(e));
-    }finally{
-      loading(false);
-    }
+    }finally{ loading(false); }
   }
-
   btn.addEventListener('click', send);
   q.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); send(); }});
-
-  (function(){
-    const box = document.getElementById('helpers');
-    const chips = Array.from(box.children);
-    const shuffled = [...chips];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    shuffled.forEach(el => box.appendChild(el));
-    shuffled.forEach((el, idx) => { el.style.display = idx < 3 ? 'inline-block' : 'none'; });
-    box.addEventListener('click', (e)=>{
-      const el = e.target.closest('.helper'); if(!el) return;
-      q.value = el.getAttribute('data-text') || ''; q.focus();
-    });
-  })();
 
   /* ---- Simple Kakao Chat Link Generator (PROD redirect base) ---- */
   (function(){
     const BASE = 'https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook/kakao-redirect';
     const key = document.getElementById('k-key');
-    const btn = document.getElementById('k-make');
+    const btnMake = document.getElementById('k-make');
+    const btnCopy = document.getElementById('k-copy');
     const out = document.getElementById('k-result');
 
-    function make(){
+    function build(){
       const kw = (key.value || '').trim();
       if(!kw){
         out.textContent = '키워드를 입력하세요';
@@ -278,8 +251,25 @@
       out.classList.remove('placeholder');
     }
 
-    btn.addEventListener('click', make);
-    key.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); make(); }});
+    async function copy(){
+      const a = out.querySelector('a');
+      const url = a ? a.href : (out.textContent || '').trim();
+      if(!/^https?:\/\//.test(url)){ out.textContent = '먼저 링크를 생성하세요'; out.classList.add('placeholder'); return; }
+      try{
+        await navigator.clipboard.writeText(url);
+        btnCopy.textContent = '복사 완료 ✅';
+        setTimeout(()=>{ btnCopy.textContent = '복사 📋'; }, 1200);
+      }catch{
+        const t = document.createElement('textarea');
+        t.value = url; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t);
+        btnCopy.textContent = '복사 완료 ✅';
+        setTimeout(()=>{ btnCopy.textContent = '복사 📋'; }, 1200);
+      }
+    }
+
+    btnMake.addEventListener('click', build);
+    btnCopy.addEventListener('click', copy);
+    key.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); build(); }});
   })();
 </script>
 </body>
