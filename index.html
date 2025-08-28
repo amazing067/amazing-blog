@@ -134,9 +134,13 @@
   function isTestMode() {
     return window.location.search.includes('test=true') || window.location.search.includes('debug=true');
   }
-  const WEBHOOK_URL = isTestMode()
-  ? "https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook-test/ask"
-  : "https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook/ask";
+  // 어디로 보낼지: hooks 도메인(고정) + 워크플로우 경로만 바꾸면 됨
+const HOOKS_BASE = 'https://hooks.xn--h32b21du9cf7grcy2k20f.com';
+const WF_PATH = 'ask'; // ← 여기만 다른 워크플로우의 Webhook Path로 바꿔도 OK (예: 'blog-writer')
+const WEBHOOK_URL = isTestMode()
+  ? `${HOOKS_BASE}/webhook-test/${WF_PATH}`   // 에디터 Test 모드 (실시간 캡처)
+  : `${HOOKS_BASE}/webhook/${WF_PATH}`;       // 운영 모드
+
 
   if (isTestMode()) {
     const indicator = document.createElement('div');
@@ -276,4 +280,5 @@
 </script>
 </body>
 </html>
+
 
