@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>카카오톡 블로그 채널링크</title>
+<style>
+  body{font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin:24px}
+  .row{display:flex;gap:8px;align-items:center}
+  .btn{border:0;background:#111827;color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer}
+  .out{margin-top:10px;word-break:break-all;border:1px dashed #cbd5e1;padding:10px;border-radius:10px}
+  label{display:block;font-weight:800;margin-bottom:8px;font-size:16px}
+</style>
+
+<h1>카카오톡 블로그 채널링크 🔗</h1>
+
+<label>키워드를 입력하세요</label>
+<div class="row">
+  <input id="k-key" placeholder="" style="flex:1;padding:12px;border:1px solid #cbd5e1;border-radius:10px;outline:none" />
+  <button id="k-make" class="btn">생성 ✨</button>
+  <button id="k-copy" class="btn">복사 📋</button>
+</div>
+<div id="k-result" class="out">결과 링크가 여기에 표시됩니다</div>
+
+<script>
+(function(){
+  const BASE = 'https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook/kakao-redirect';
+  const key = document.getElementById('k-key');
+  const make = document.getElementById('k-make');
+  const copy = document.getElementById('k-copy');
+  const out = document.getElementById('k-result');
+
+  function build(){
+    const kw = (key.value || '').trim();
+    if(!kw){ out.textContent = '키워드를 먼저 입력하세요'; return; }
+    const url = BASE + (BASE.includes('?') ? '&' : '?') + 'ref=' + encodeURIComponent(kw);
+    out.innerHTML = `<a href="${url}" target="_blank" rel="noopener">${url}</a>`;
+  }
+  async function doCopy(){
+    const a = out.querySelector('a');
+    const url = a ? a.href : (out.textContent || '').trim();
+    if(!/^https?:\/\//.test(url)){ out.textContent = '먼저 링크를 생성하세요'; return; }
+    try{ await navigator.clipboard.writeText(url); copy.textContent='복사 완료 ✅'; setTimeout(()=>copy.textContent='복사 📋',1100); }
+    catch(e){ const t=document.createElement('textarea'); t.value=url; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove();
+      copy.textContent='복사 완료 ✅'; setTimeout(()=>copy.textContent='복사 📋',1100); }
+  }
+  make.onclick = build;
+  copy.onclick = doCopy;
+  key.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); build(); }});
+})();
+</script>
+</html>
