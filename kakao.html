@@ -29,20 +29,35 @@
   const copy = document.getElementById('k-copy');
   const out = document.getElementById('k-result');
 
+  function uid(){
+    return Date.now().toString(36) + Math.random().toString(36).slice(2,10);
+  }
+
   function build(){
     const kw = (key.value || '').trim();
     if(!kw){ out.textContent = '키워드를 먼저 입력하세요'; return; }
-    const url = BASE + (BASE.includes('?') ? '&' : '?') + 'ref=' + encodeURIComponent(kw);
+    const u = uid();
+    const qs = new URLSearchParams({ ref: kw, utm_content: u }).toString();
+    const url = BASE + (BASE.includes('?') ? '&' : '?') + qs;
     out.innerHTML = `<a href="${url}" target="_blank" rel="noopener">${url}</a>`;
   }
+
   async function doCopy(){
     const a = out.querySelector('a');
     const url = a ? a.href : (out.textContent || '').trim();
     if(!/^https?:\/\//.test(url)){ out.textContent = '먼저 링크를 생성하세요'; return; }
-    try{ await navigator.clipboard.writeText(url); copy.textContent='복사 완료 ✅'; setTimeout(()=>copy.textContent='복사 📋',1100); }
-    catch(e){ const t=document.createElement('textarea'); t.value=url; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove();
-      copy.textContent='복사 완료 ✅'; setTimeout(()=>copy.textContent='복사 📋',1100); }
+    try{
+      await navigator.clipboard.writeText(url);
+      copy.textContent='복사 완료 ✅';
+      setTimeout(()=>copy.textContent='복사 📋',1100);
+    }catch(e){
+      const t=document.createElement('textarea');
+      t.value=url; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove();
+      copy.textContent='복사 완료 ✅';
+      setTimeout(()=>copy.textContent='복사 📋',1100);
+    }
   }
+
   make.onclick = build;
   copy.onclick = doCopy;
   key.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); build(); }});
