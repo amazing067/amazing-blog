@@ -135,12 +135,11 @@
     return window.location.search.includes('test=true') || window.location.search.includes('debug=true');
   }
   // 어디로 보낼지: hooks 도메인(고정) + 워크플로우 경로만 바꾸면 됨
-const HOOKS_BASE = 'https://hooks.xn--h32b21du9cf7grcy2k20f.com';
-const WF_PATH = 'ask'; // ← 여기만 다른 워크플로우의 Webhook Path로 바꿔도 OK (예: 'blog-writer')
-const WEBHOOK_URL = isTestMode()
-  ? `${HOOKS_BASE}/webhook-test/${WF_PATH}`   // 에디터 Test 모드 (실시간 캡처)
-  : `${HOOKS_BASE}/webhook/${WF_PATH}`;       // 운영 모드
-
+  const HOOKS_BASE = 'https://hooks.xn--h32b21du9cf7grcy2k20f.com';
+  const WF_PATH = 'ask'; // ← 여기만 다른 워크플로우의 Webhook Path로 바꿔도 OK (예: 'blog-writer')
+  const WEBHOOK_URL = isTestMode()
+    ? `${HOOKS_BASE}/webhook-test/${WF_PATH}`   // 에디터 Test 모드 (실시간 캡처)
+    : `${HOOKS_BASE}/webhook/${WF_PATH}`;       // 운영 모드
 
   if (isTestMode()) {
     const indicator = document.createElement('div');
@@ -184,32 +183,25 @@ const WEBHOOK_URL = isTestMode()
     return el.value;
   }
   function extractEmbeddable(htmlString){
-  try {
-    const s = String(htmlString || "");
-
-    // 1) <iframe srcdoc="..."> 로 감싸진 경우 → srcdoc 내용을 꺼내서 반환
-    const m = s.match(/^\s*<iframe\b[^>]*\bsrcdoc=(["'])([\s\S]*?)\1[^>]*>\s*<\/iframe>\s*$/i);
-    if (m) {
-      const ta = document.createElement("textarea"); // 엔티티(&quot; 등) 복원
-      ta.innerHTML = m[2];
-      return ta.value;
+    try {
+      const s = String(htmlString || "");
+      const m = s.match(/^\s*<iframe\b[^>]*\bsrcdoc=(["'])([\s\S]*?)\1[^>]*>\s*<\/iframe>\s*$/i);
+      if (m) {
+        const ta = document.createElement("textarea");
+        ta.innerHTML = m[2];
+        return ta.value;
+      }
+      if (/^\s*<iframe\b/i.test(s)) return s;
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(s, "text/html");
+      const main = doc.querySelector("main");
+      if (main) return main.innerHTML;
+      if (doc.body) return doc.body.innerHTML || s;
+      return s;
+    } catch {
+      return htmlString;
     }
-
-    // 2) 일반 <iframe ...> (srcdoc 아님) 은 그대로 사용
-    if (/^\s*<iframe\b/i.test(s)) return s;
-
-    // 3) 전체 HTML이면 <main> 우선, 없으면 <body> 안쪽만 반환
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(s, "text/html");
-    const main = doc.querySelector("main");
-    if (main) return main.innerHTML;
-    if (doc.body) return doc.body.innerHTML || s;
-    return s;
-  } catch {
-    return htmlString;
   }
-}
-
   function pickHtmlPayload(data, fallback){
     const candidates = [
       data?.html_document, data?.html, data?.content, data?.body,
@@ -260,6 +252,10 @@ const WEBHOOK_URL = isTestMode()
     const btnCopy = document.getElementById('k-copy');
     const out = document.getElementById('k-result');
 
+    function uid(){
+      return Date.now().toString(36) + Math.random().toString(36).slice(2,10);
+    }
+
     function build(){
       const kw = (key.value || '').trim();
       if(!kw){
@@ -267,7 +263,10 @@ const WEBHOOK_URL = isTestMode()
         out.classList.add('placeholder');
         return;
       }
-      const url = BASE + (BASE.includes('?') ? '&' : '?') + 'ref=' + encodeURIComponent(kw);
+      // 매 호출마다 고유 utm_content 부여 → 링크 절대 중복 방지
+      const u = uid();
+      const qs = new URLSearchParams({ ref: kw, utm_content: u }).toString();
+      const url = BASE + (BASE.includes('?') ? '&' : '?') + qs;
       out.innerHTML = `<a href="${url}" target="_blank" rel="noopener">${url}</a>`;
       out.classList.remove('placeholder');
     }
@@ -275,7 +274,11 @@ const WEBHOOK_URL = isTestMode()
     async function copy(){
       const a = out.querySelector('a');
       const url = a ? a.href : (out.textContent || '').trim();
-      if(!/^https?:\/\//.test(url)){ out.textContent = '먼저 링크를 생성하세요'; out.classList.add('placeholder'); return; }
+      if(!/^https?:\/\//.test(url)){
+        out.textContent = '먼저 링크를 생성하세요';
+        out.classList.add('placeholder');
+        return;
+      }
       try{
         await navigator.clipboard.writeText(url);
         btnCopy.textContent = '복사 완료 ✅';
@@ -295,6 +298,3 @@ const WEBHOOK_URL = isTestMode()
 </script>
 </body>
 </html>
-
-
-
