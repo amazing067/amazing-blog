@@ -35,10 +35,12 @@
       letter-spacing:-0.3px;
     }
     @keyframes shine{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+
     .card{
       background:#ffffffcc;border:1px solid #eef2ff;border-radius:22px;backdrop-filter:blur(8px);
       box-shadow:0 12px 34px #00000012;padding:20px 18px 16px;
     }
+
     .ask{
       display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid #e5e7eb;
       border-radius:999px;padding:10px 10px 10px 14px; box-shadow:0 2px 8px #00000008;
@@ -100,24 +102,35 @@
     .chip-html{ background:linear-gradient(135deg,#14b8a6,#0ea5e9); }
     .chip-pdf { background:linear-gradient(135deg,#f43f5e,#fb7185); }
 
-    /* 카테고리 라벨 + 탭 (가운데 정렬) */
+    /* 카테고리 라벨 + 세그먼트 탭 + 하이라이트 바 */
     #catHeader{ display:flex; align-items:center; justify-content:center; gap:8px; margin-top:12px; }
     #catBadge{
       font-size:11px; font-weight:900; letter-spacing:.6px;
       padding:4px 8px; border-radius:999px; color:#4c1d95; background:#ede9fe; border:1px solid #ddd6fe;
     }
-    #tabs{ margin-top:6px; gap:6px; justify-content:center; }
-    .tab{
-      border:1px solid #e5e7eb; background:#fff; color:#374151;
-      padding:8px 12px; border-radius:999px; font-size:12px; cursor:pointer;
-      transition:background .15s, color .15s, border .15s;
+    #tabWrap{ display:flex; justify-content:center; margin-top:6px; }
+    #tabs{
+      position:relative; display:flex; gap:6px; padding:6px; border-radius:999px;
+      background:linear-gradient(180deg,#ffffff,#f8fafc);
+      border:1px solid #e5e7eb; box-shadow:0 6px 18px #00000010; overflow:auto; max-width:100%;
     }
-    .tab:hover{ background:#fafafa; }
-    .tab.active{
-      color:#fff; border:1px solid transparent;
+    #tabIndicator{
+      position:absolute; top:6px; height:calc(100% - 12px); border-radius:999px;
       background:linear-gradient(135deg,#7c3aed,#22d3ee);
-      box-shadow:0 8px 18px #7c3aed33, inset 0 -6px 12px #00000014;
+      box-shadow:0 10px 24px #7c3aed44;
+      transition:left .25s ease, width .25s ease;
+      z-index:0;
     }
+    .tab{
+      position:relative; z-index:1;
+      border:0; background:transparent; color:#334155;
+      padding:8px 12px; border-radius:999px; font-size:12px; cursor:pointer;
+      display:inline-flex; align-items:center; gap:6px; font-weight:800;
+      transition:color .2s ease, transform .06s;
+      white-space:nowrap;
+    }
+    .tab .ico{ font-style:normal; }
+    .tab.active{ color:#fff; }
 
     /* 서식 툴바 */
     #toolbar{
@@ -146,13 +159,10 @@
     .t-right{ background:linear-gradient(135deg,#c4b5fd,#a78bfa); }
     .t-link{ background:linear-gradient(135deg,#6366f1,#8b5cf6); }
     .t-color{ background:linear-gradient(135deg,#ef4444,#eab308,#22c55e,#3b82f6,#8b5cf6); color:#111827; font-weight:800; }
-    .tool-lite{
-      border:1px dashed #e5e7eb; background:#fff; color:#374151; box-shadow:none;
-    }
     .color-picker{ appearance:none; width:28px; height:28px; border-radius:8px; border:1px solid #e5e7eb; padding:0; }
     .color-picker::-webkit-color-swatch{ border:none; border-radius:8px; }
 
-    /* 이미지 리사이즈 핸들 & 떠있는 패널 */
+    /* 이미지 리사이즈 */
     .img-selected{ outline:2px solid #7c3aed; outline-offset:2px; }
     .img-handle{
       position:absolute; width:12px; height:12px; border-radius:50%;
@@ -170,20 +180,19 @@
     .img-fab .p75{ background:#a7f3d0; }
     .img-fab .p100{ background:#bfdbfe; }
 
-    /* 스냅샷 박스 */
-    #snapBox{
-      margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; justify-content:center; align-items:center;
-    }
+    /* 스냅샷/폰트 */
+    #snapBox{ margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; justify-content:center; align-items:center; }
     #snapBox select{ padding:8px 10px; border-radius:10px; border:1px solid #e5e7eb; background:#fff; }
     #snapBox .btn{ padding:8px 12px; border-radius:999px; border:0; color:#fff; font-weight:700; cursor:pointer; }
     #btnSnapSave{ background:linear-gradient(135deg,#0ea5e9,#6366f1); }
     #btnSnapLoad{ background:linear-gradient(135deg,#22c55e,#16a34a); }
     #btnSnapDel{  background:linear-gradient(135deg,#ef4444,#f97316); }
-
-    /* 본문 전체 글자 크기 컨트롤 */
     #fontBox{ margin-top:8px; display:flex; justify-content:center; align-items:center; gap:8px; }
     #fontBox .btn{ padding:6px 10px; border-radius:8px; border:1px dashed #e5e7eb; background:#fff; cursor:pointer; }
     #fontBox .val{ font-weight:800; color:#334155; min-width:50px; text-align:center; }
+
+    /* exporters 구역 */
+    .res.editing{ outline:2px dashed #9b87f5; }
   </style>
 </head>
 <body>
@@ -223,7 +232,12 @@
 
       <!-- 카테고리 라벨 + 탭 -->
       <div id="catHeader"><span id="catBadge">카테고리</span></div>
-      <div class="helpers" id="tabs"></div>
+      <div id="tabWrap">
+        <div class="helpers" id="tabs">
+          <div id="tabIndicator" style="left:6px;width:0px;"></div>
+          <!-- tabs will render here -->
+        </div>
+      </div>
 
       <!-- helpers (3개 로테이션) -->
       <div class="helpers" id="helpers"></div>
@@ -265,7 +279,7 @@
         <span class="val" id="fontVal">100%</span>
         <button class="btn" id="fontUp">A+</button>
         <span class="placeholder">/ 선택 글자크기: </span>
-        <input type="range" id="selFont" min="70" max="200" value="100" style="width:140px" title="선택 영역 글자 크기"/>
+        <input type="range" id="selFont" min="80" max="160" value="100" style="width:140px" title="선택 영역 글자 크기"/>
       </div>
 
       <div id="res" class="res"><div class="placeholder">결과는 여기에 표시됩니다</div></div>
@@ -349,7 +363,7 @@
   }</script>
 
 <script>
-  // ========== 공통 ==========
+  /* ===== 기본 공통 ===== */
   function isTestMode(){ return location.search.includes('test=true') || location.search.includes('debug=true'); }
   const HOOKS_BASE='https://hooks.xn--h32b21du9cf7grcy2k20f.com';
   const WF_PATH='ask';
@@ -358,7 +372,6 @@
     const indicator=document.createElement('div'); indicator.className='test-indicator'; indicator.textContent='TEST MODE';
     document.body.appendChild(indicator);
   }
-
   const $=(s)=>document.querySelector(s);
   const q=$('#q'), btn=$('#send'), res=$('#res'), sendLabel=$('#sendLabel');
 
@@ -396,7 +409,7 @@
     return null;
   }
 
-  // ===== 수정 모드 & 내보내기 =====
+  /* ===== 수정 모드 & 내보내기 ===== */
   let editMode=false;
   const dlHtmlBtn=$('#downloadHtml'), dlPdfBtn=$('#downloadPdf'), toggleBtn=$('#toggleEdit'), toolbar=$('#toolbar');
 
@@ -427,7 +440,7 @@
   if(toggleBtn) toggleBtn.addEventListener('click', toggleEditMode);
   [...toolbar.querySelectorAll('.tool,.color-picker')].forEach(el=>el.disabled=true);
 
-  // ===== 전송 =====
+  /* ===== 전송 ===== */
   async function send(){
     const topic=q.value.trim(); if(topic.length<2){ q.focus(); res.textContent='Please enter at least 2 characters.'; return; }
     loading(true);
@@ -453,8 +466,8 @@
   btn.addEventListener('click', send);
   q.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); send(); }});
 
-  // ===== 카테고리 탭 + 3개 로테이션 =====
-  const tabsEl=$('#tabs'), helpersEl=$('#helpers'); const ROTATE_MS=12000;
+  /* ===== 카테고리 탭 + 3개 로테이션 ===== */
+  const tabsEl=$('#tabs'), helpersEl=$('#helpers'), tabIndicator=$('#tabIndicator'); const ROTATE_MS=12000;
   let categories={}, catNames=[], currentCat=null, order=[], cursor=0, rotateTimer=null;
 
   function loadCategories(){ try{ const raw=$('#topic-categories')?.textContent||'{}'; const obj=JSON.parse(raw); return obj&&typeof obj==='object'?obj:{}; }catch{ return {}; } }
@@ -463,8 +476,21 @@
   function escAttr(s){ return escHtml(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
   function renderTabs(){
-    tabsEl.innerHTML=catNames.map((c,i)=>`<button class="tab ${i===0?'active':''}" data-cat="${escAttr(c)}">${escHtml(c)}</button>`).join('');
-    currentCat=catNames[0]||null; resetRotation();
+    tabsEl.innerHTML = '<div id="tabIndicator"></div>' + catNames.map((c,i)=>(
+      `<button class="tab ${i===0?'active':''}" data-cat="${escAttr(c)}">
+         <span class="ico">🏷️</span>${escHtml(c)}
+       </button>`
+    )).join('');
+    // 재바인드 인디케이터
+    const ind = tabsEl.querySelector('#tabIndicator'); ind.id='tabIndicator';
+    currentCat=catNames[0]||null; moveIndicatorToActive(); resetRotation();
+  }
+  function moveIndicatorToActive(){
+    const active=tabsEl.querySelector('.tab.active'); const ind=tabsEl.querySelector('#tabIndicator'); if(!active||!ind) return;
+    const r=active.getBoundingClientRect(), p=tabsEl.getBoundingClientRect();
+    const left = (active.offsetLeft - 0) + 0; // padding 고려 안함(이미 여유)
+    ind.style.left = left + 'px';
+    ind.style.width = active.offsetWidth + 'px';
   }
   function resetRotation(){
     const pool=(categories[currentCat]||[]); order=shuffle(pool.map((_,i)=>i)); cursor=0; renderHelpers();
@@ -476,10 +502,15 @@
     const idxs=order.slice(cursor, cursor+n); cursor+=n; return idxs.map(i=>pool[i]);
   }
   function renderHelpers(){ const items=nextSet(3); helpersEl.innerHTML=items.map(t=>`<button class="helper" data-text="${escAttr(t)}">${escHtml(t)}</button>`).join(''); }
-  tabsEl.addEventListener('click',(e)=>{ const tab=e.target.closest('.tab'); if(!tab) return; tabsEl.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); tab.classList.add('active'); currentCat=tab.getAttribute('data-cat'); resetRotation(); });
+  tabsEl.addEventListener('click',(e)=>{
+    const tab=e.target.closest('.tab'); if(!tab) return;
+    tabsEl.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); tab.classList.add('active');
+    currentCat=tab.getAttribute('data-cat'); moveIndicatorToActive(); resetRotation();
+  });
   if(helpersEl){ helpersEl.addEventListener('click',(e)=>{ const b=e.target.closest('.helper'); if(!b) return; q.value=b.getAttribute('data-text')||b.textContent||''; }); }
+  window.addEventListener('resize', moveIndicatorToActive);
 
-  // ===== 서식 툴바 =====
+  /* ===== 서식 툴바 ===== */
   function applyCmd(cmd,val=null){ if(!editMode) toggleEditMode(); document.execCommand(cmd,false,val); res.focus(); scheduleIdleSave(); }
   $('#toolbar').addEventListener('click',(e)=>{
     const b=e.target.closest('.tool'); if(!b) return;
@@ -488,25 +519,41 @@
   });
   $('#foreColor').addEventListener('input',(e)=>{ applyCmd('foreColor', e.target.value); });
 
-  // ===== 전체 글씨 크기(A-/A+) & 선택 글자크기 슬라이더 =====
+  /* ===== 글씨 크기 제한(클램프): 전역 80–140%, 선택 80–160% ===== */
+  const FONT_MIN=80, FONT_MAX=140, SEL_MIN=80, SEL_MAX=160;
   let globalFont=100;
-  function applyGlobalFont(){ res.style.fontSize=globalFont+'%'; $('#fontVal').textContent=globalFont+'%'; scheduleIdleSave(); }
-  $('#fontDown').addEventListener('click',()=>{ globalFont=Math.max(70, globalFont-10); applyGlobalFont(); });
-  $('#fontUp').addEventListener('click',()=>{ globalFont=Math.min(200, globalFont+10); applyGlobalFont(); });
-
-  $('#selFont').addEventListener('input',(e)=>{
-    const size=parseInt(e.target.value,10);
+  function clamp(v,min,max){ return Math.max(min, Math.min(max,v)); }
+  function applyGlobalFont(){
+    globalFont = clamp(globalFont, FONT_MIN, FONT_MAX);
+    res.style.fontSize = globalFont + '%';
+    $('#fontVal').textContent = globalFont + '%';
+    scheduleIdleSave();
+  }
+  $('#fontDown').addEventListener('click', ()=>{ globalFont = clamp(globalFont-10, FONT_MIN, FONT_MAX); applyGlobalFont(); });
+  $('#fontUp').addEventListener('click',   ()=>{ globalFont = clamp(globalFont+10, FONT_MIN, FONT_MAX); applyGlobalFont(); });
+  $('#selFont').addEventListener('input', (e)=>{
+    const size = clamp(parseInt(e.target.value,10)||100, SEL_MIN, SEL_MAX);
+    e.target.value = size; // 슬라이더 표시 보정
     if(!editMode) toggleEditMode();
-    const sel=window.getSelection();
-    if(!sel || sel.rangeCount===0) return;
+    const sel=window.getSelection(); if(!sel || sel.rangeCount===0) return;
     const range=sel.getRangeAt(0);
     const span=document.createElement('span'); span.style.fontSize=size+'%';
-    range.surroundContents(span);
+    try{ range.surroundContents(span); }
+    catch{
+      const frag = range.extractContents(); span.appendChild(frag); range.insertNode(span);
+    }
     sel.removeAllRanges(); const r=document.createRange(); r.selectNodeContents(span); sel.addRange(r);
     scheduleIdleSave();
   });
+  function restoreDraftSafeFont(saved){
+    if(saved && typeof saved.globalFont==='number'){
+      globalFont = clamp(saved.globalFont, FONT_MIN, FONT_MAX);
+      res.style.fontSize = globalFont + '%';
+      $('#fontVal').textContent = globalFont + '%';
+    }
+  }
 
-  // ===== 이미지 드래그&드롭/붙여넣기 + 리사이즈 =====
+  /* ===== 이미지 드래그&드롭/붙여넣기 + 리사이즈 ===== */
   function insertAtCaret(node){
     const sel=window.getSelection();
     if(sel && sel.rangeCount && res.contains(sel.anchorNode)){
@@ -556,9 +603,7 @@
   document.addEventListener('click',(e)=>{ if(!res.contains(e.target)) clearImageUI(); });
 
   function showHandle(img){
-    const rect=img.getBoundingClientRect();
     handleEl=document.createElement('div'); handleEl.className='img-handle';
-    // 핸들은 이미지의 offsetParent 기준 위치가 필요 → wrapper 없이 position:relative 대체
     img.style.position='relative';
     img.parentElement.style.position='relative';
     img.parentElement.appendChild(handleEl);
@@ -589,7 +634,6 @@
       <button class="p75">75%</button>
       <button class="p100">100%</button>
     `;
-    // 위치: 이미지 상단 중앙
     img.parentElement.style.position='relative';
     img.parentElement.appendChild(fabEl);
 
@@ -605,7 +649,7 @@
     if(range) range.value=Math.max(10,Math.min(100, pct));
   }
 
-  // ===== 카카오 링크 생성기 (원본 유지) =====
+  /* ===== 카카오 링크 생성기 (원본 유지) ===== */
   (function(){
     const BASE='https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook/kakao-redirect';
     const key=$('#k-key'); const btnMake=$('#k-make'); const btnCopy=$('#k-copy'); const out=$('#k-result');
@@ -617,12 +661,12 @@
     if(key) key.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); build(); }});
   })();
 
-  // ===== 자동 저장 (유휴 1분 + 주기 5분) & 복원 =====
+  /* ===== 자동 저장 (유휴 1분 + 주기 5분) & 복원 ===== */
   const DRAFT_KEY='blog_auto_draft_v1';
   let idleTimer=null, periodicTimer=null;
 
   function serializeDraft(){ return { v:3, ts:Date.now(), topic:(q?.value||'').trim(), html:res?.innerHTML||'', edit:!!editMode, globalFont }; }
-  function saveDraft(){ try{ const data=serializeDraft(); localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); /*console.log('saved', new Date(data.ts))*/ }catch(e){ console.warn('autosave failed',e); } }
+  function saveDraft(){ try{ const data=serializeDraft(); localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); }catch(e){ console.warn('autosave failed',e); } }
   function scheduleIdleSave(){ if(idleTimer) clearTimeout(idleTimer); idleTimer=setTimeout(saveDraft, 60*1000); } // 1분 유휴
   function startPeriodicSave(){ if(periodicTimer) clearInterval(periodicTimer); periodicTimer=setInterval(saveDraft, 5*60*1000); } // 5분 주기
   function restoreDraft(){
@@ -632,7 +676,7 @@
       if(typeof data.topic==='string') q.value=data.topic;
       if(typeof data.html==='string'){ res.innerHTML=data.html; enableExports(true); attachResizeToImages(); }
       if(data.edit){ if(!editMode) toggleEditMode(); }
-      if(data.globalFont){ globalFont=data.globalFont; res.style.fontSize=globalFont+'%'; $('#fontVal').textContent=globalFont+'%'; }
+      restoreDraftSafeFont(data); // 폰트 안전 복원(클램프)
     }catch(e){ console.warn('restore failed', e); }
   }
   function bindAutoSaveEvents(){
@@ -643,13 +687,13 @@
     startPeriodicSave();
   }
 
-  // ===== 스냅샷(히스토리) =====
+  /* ===== 스냅샷(히스토리) ===== */
   const SNAP_KEY='blog_snapshots_v1'; const snapSelect=$('#snapSelect');
   function loadSnaps(){ try{ const raw=localStorage.getItem(SNAP_KEY); const arr=raw?JSON.parse(raw):[]; return Array.isArray(arr)?arr:[]; }catch{return [];} }
   function saveSnaps(arr){ localStorage.setItem(SNAP_KEY, JSON.stringify(arr)); }
   function refreshSnapSelect(){
     const arr=loadSnaps();
-    snapSelect.innerHTML=arr.map((s,i)=>`<option value="${i}">${new Date(s.ts).toLocaleString()} — ${s.topic?.slice(0,24)||'제목없음'}</option>`).join('');
+    snapSelect.innerHTML=arr.map((s,i)=>`<option value="${i}">${new Date(s.ts).toLocaleString()} — ${ (s.topic||'제목없음').slice(0,24) }</option>`).join('');
   }
   function snapNow(){
     const arr=loadSnaps();
@@ -663,7 +707,7 @@
     const s=arr[idx]; if(!s) return;
     q.value=s.topic||''; res.innerHTML=s.html||''; enableExports(true); attachResizeToImages();
     if(!!s.edit && !editMode) toggleEditMode(); if(!s.edit && editMode) toggleEditMode();
-    globalFont=s.globalFont||100; res.style.fontSize=globalFont+'%'; $('#fontVal').textContent=globalFont+'%';
+    restoreDraftSafeFont(s);
     scheduleIdleSave();
   }
   function delSnap(){
@@ -674,11 +718,16 @@
   $('#btnSnapLoad').addEventListener('click', loadSnap);
   $('#btnSnapDel').addEventListener('click', delSnap);
 
-  // ===== 부팅 =====
+  /* ===== 초기화 ===== */
   function init(){
     // 카테고리
     categories=loadCategories(); catNames=Object.keys(categories);
-    if(catNames.length){ renderTabs(); } else { $('#tabs').innerHTML=''; $('#helpers').innerHTML='<div class="placeholder">주제 풀이 없습니다</div>'; }
+    if(catNames.length){
+      renderTabs();
+    } else {
+      $('#tabs').innerHTML='';
+      $('#helpers').innerHTML='<div class="placeholder">주제 풀이 없습니다</div>';
+    }
     // 복원 & 오토세이브
     restoreDraft(); bindAutoSaveEvents(); refreshSnapSelect();
     // 초기 이미지에 리사이즈 부착(있다면)
