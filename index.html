@@ -71,8 +71,34 @@
       background-size:200% 100%;animation:shine 3s linear infinite;
     }
     .test-indicator{position:fixed;top:10px;right:10px;background:#ff6b35;color:#fff;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:bold;z-index:1000;}
-    /* edit mode marker */
     .res.editing{ outline:2px dashed #9b87f5; box-shadow: inset 0 0 0 3px #f3f0ff; }
+
+    /* ▼▼ 새로 추가: helpers / exporters 사이 분리선 & 버튼 컬러 */
+    #exporters{
+      border-top:1px dashed #e5e7eb;
+      margin-top:12px;
+      padding-top:12px;
+      position:relative;
+    }
+    #exporters::before{
+      content:"";
+      position:absolute;left:0;right:0;top:-1px;height:1px;
+      background:linear-gradient(90deg,#ffffff00,#e5e7eb,#ffffff00);
+    }
+    .chip{
+      border:0; cursor:pointer; padding:8px 12px; border-radius:999px;
+      color:#fff; font-weight:700; display:inline-flex; align-items:center; gap:6px;
+      box-shadow:0 8px 18px #00000014, inset 0 -6px 12px #0000000f;
+      transition:transform .06s, filter .15s;
+    }
+    .chip:hover{ filter:brightness(1.06); }
+    .chip:active{ transform:translateY(1px); }
+    .chip:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .chip-edit{ background:linear-gradient(135deg,#8b5cf6,#6d28d9); }
+    .chip-html{ background:linear-gradient(135deg,#14b8a6,#0ea5e9); }
+    .chip-pdf { background:linear-gradient(135deg,#f43f5e,#fb7185); }
+    /* ▲▲ 추가 끝 */
   </style>
 </head>
 <body>
@@ -81,10 +107,10 @@
       <div class="sticker" aria-hidden="true">
         <svg viewBox="0 0 80 80" width="58" height="58">
           <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#fef3c7"/><stop offset="1" stop-color="#fde68a"/></linearGradient></defs>
-        <circle cx="40" cy="40" r="28" fill="url(#g)" stroke="#fbbf24" stroke-width="2"/>
-        <circle cx="32" cy="35" r="4" fill="#1f2937"/><circle cx="48" cy="35" r="4" fill="#1f2937"/>
-        <path d="M28 49 Q40 58 52 49" stroke="#1f2937" stroke-width="3" fill="none" stroke-linecap="round"/>
-        <path d="M18 26 26 18 M54 18 62 26" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="40" cy="40" r="28" fill="url(#g)" stroke="#fbbf24" stroke-width="2"/>
+          <circle cx="32" cy="35" r="4" fill="#1f2937"/><circle cx="48" cy="35" r="4" fill="#1f2937"/>
+          <path d="M28 49 Q40 58 52 49" stroke="#1f2937" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M18 26 26 18 M54 18 62 26" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
         </svg>
       </div>
       <h1 class="title">어메이징사업부 블로그 자동화</h1>
@@ -100,11 +126,8 @@
                style="flex:1;padding:12px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;outline:none"/>
         <button id="k-make" class="send" type="button">생성 ✨</button>
       </div>
-
       <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
-        <div id="k-result" class="placeholder" style="flex:1;word-break:break-all">
-          결과 링크가 여기에 표시됩니다
-        </div>
+        <div id="k-result" class="placeholder" style="flex:1;word-break:break-all">결과 링크가 여기에 표시됩니다</div>
         <button id="k-copy" class="send" type="button" style="white-space:nowrap">복사 📋</button>
       </div>
     </div>
@@ -115,23 +138,21 @@
         <button id="send" class="send" type="button"><span id="sendLabel">Send</span> 🚀</button>
       </div>
 
-      <!-- helpers: JS가 3개씩 랜더링함 -->
-      <div class="helpers" id="helpers">
-        <!-- JS will inject three buttons here -->
-      </div>
+      <!-- helpers: JS가 3개씩 랜더링 -->
+      <div class="helpers" id="helpers"></div>
 
-      <!-- 결과 영역 컨트롤 -->
+      <!-- 분리선 + 컬러 버튼 3종 -->
       <div class="helpers" id="exporters">
-        <button class="helper" id="toggleEdit">수정 모드</button>
-        <button class="helper" id="downloadHtml" disabled>HTML 저장</button>
-        <button class="helper" id="downloadPdf" disabled>PDF 저장</button>
+        <button class="chip chip-edit" id="toggleEdit" data-on="수정 종료" data-off="수정 모드">수정 모드</button>
+        <button class="chip chip-html" id="downloadHtml" disabled>HTML 저장</button>
+        <button class="chip chip-pdf"  id="downloadPdf"  disabled>PDF 저장</button>
       </div>
 
       <div id="res" class="res"><div class="placeholder">결과는 여기에 표시됩니다</div></div>
     </div>
   </div>
 
-  <!-- 검색 의도형 주제 리스트(JSON, JS 아님) -->
+  <!-- 검색 의도형 주제 리스트(JSON) -->
   <script type="application/json" id="topic-data">[
     "실손보험 청구서류 체크리스트 2025",
     "실손보험 청구 방법 병원서류부터 앱청구까지",
@@ -294,7 +315,10 @@
     editMode = !editMode;
     res.contentEditable = editMode ? "true" : "false";
     res.classList.toggle('editing', !!editMode);
-    toggleBtn.textContent = editMode ? '수정 종료' : '수정 모드';
+    // no Korean literals in JS: read labels from data attributes
+    const onLabel  = toggleBtn.getAttribute('data-on')  || 'Edit Off';
+    const offLabel = toggleBtn.getAttribute('data-off') || 'Edit Mode';
+    toggleBtn.textContent = editMode ? onLabel : offLabel;
   }
   if (dlHtmlBtn) dlHtmlBtn.addEventListener('click', downloadHTMLFile);
   if (dlPdfBtn)  dlPdfBtn.addEventListener('click',  downloadPDFFile);
@@ -334,8 +358,8 @@
       enableExports(false);
     }finally{ loading(false); }
   }
-  btn.addEventListener('click', send);
-  q.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); send(); }});
+  document.getElementById('send').addEventListener('click', send);
+  document.getElementById('q').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); send(); }});
 
   // helpers: rotating 3 topics, clickable
   const helpersEl = document.getElementById('helpers');
@@ -388,19 +412,17 @@
   }
   function initHelpers(){
     topicPool = loadTopics();
-    order = topicPool.map((_,i)=>i);
-    order = shuffle(order);
+    order = shuffle(topicPool.map((_,i)=>i));
     cursor = 0;
     renderHelpers();
     startRotate();
   }
-  // click-to-send (event delegation)
   if (helpersEl){
     helpersEl.addEventListener('click', (e)=>{
       const btnEl = e.target.closest('.helper');
       if(!btnEl) return;
       const text = btnEl.getAttribute('data-text') || btnEl.textContent || '';
-      q.value = text;
+      document.getElementById('q').value = text;
       send();
     });
   }
