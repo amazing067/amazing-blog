@@ -73,7 +73,7 @@
     .test-indicator{position:fixed;top:10px;right:10px;background:#ff6b35;color:#fff;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:bold;z-index:1000;}
     .res.editing{ outline:2px dashed #9b87f5; box-shadow: inset 0 0 0 3px #f3f0ff; }
 
-    /* ▼▼ 새로 추가: helpers / exporters 사이 분리선 & 버튼 컬러 */
+    /* helpers / exporters 사이 분리선 & 버튼 컬러 */
     #exporters{
       border-top:1px dashed #e5e7eb;
       margin-top:12px;
@@ -94,11 +94,9 @@
     .chip:hover{ filter:brightness(1.06); }
     .chip:active{ transform:translateY(1px); }
     .chip:disabled{ opacity:.55; cursor:not-allowed; }
-
     .chip-edit{ background:linear-gradient(135deg,#8b5cf6,#6d28d9); }
     .chip-html{ background:linear-gradient(135deg,#14b8a6,#0ea5e9); }
     .chip-pdf { background:linear-gradient(135deg,#f43f5e,#fb7185); }
-    /* ▲▲ 추가 끝 */
   </style>
 </head>
 <body>
@@ -315,7 +313,6 @@
     editMode = !editMode;
     res.contentEditable = editMode ? "true" : "false";
     res.classList.toggle('editing', !!editMode);
-    // no Korean literals in JS: read labels from data attributes
     const onLabel  = toggleBtn.getAttribute('data-on')  || 'Edit Off';
     const offLabel = toggleBtn.getAttribute('data-off') || 'Edit Mode';
     toggleBtn.textContent = editMode ? onLabel : offLabel;
@@ -361,7 +358,7 @@
   document.getElementById('send').addEventListener('click', send);
   document.getElementById('q').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); send(); }});
 
-  // helpers: rotating 3 topics, clickable
+  // helpers: rotating 3 topics, clickable (입력만, 자동 전송 없음)
   const helpersEl = document.getElementById('helpers');
   const ROTATE_MS = 12000; // 12s
   let topicPool = [];
@@ -422,8 +419,8 @@
       const btnEl = e.target.closest('.helper');
       if(!btnEl) return;
       const text = btnEl.getAttribute('data-text') || btnEl.textContent || '';
-      document.getElementById('q').value = text;
-      send();
+      document.getElementById('q').value = text; // 입력만
+      // auto-send 제거 (요청 반영)
     });
   }
 
