@@ -65,7 +65,7 @@
     .res{
       margin-top:14px;background:#fff;border:1px solid #eef2ff;border-radius:16px;padding:14px;min-height:130px;
       white-space:pre-wrap;line-height:1.6;
-      overflow-wrap:anywhere; word-break:break-word; overflow:auto;  /* 밖으로 안나가게 */
+      overflow-wrap:anywhere; word-break:break-word; overflow:auto;
     }
     .placeholder{color:#9ca3af;font-size:14px}
     .status{
@@ -77,8 +77,10 @@
     .test-indicator{position:fixed;top:10px;right:10px;background:#ff6b35;color:#fff;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:bold;z-index:1000;}
     .res.editing{ outline:2px dashed #9b87f5; box-shadow: inset 0 0 0 3px #f3f0ff; }
 
-    /* exporters */
-    #exporters{ border-top:1px dashed #e5e7eb; margin-top:12px; padding-top:12px; }
+    /* exporters 분리선 & 버튼 */
+    #exporters{ border-top:1px dashed #e5e7eb; margin-top:12px; padding-top:12px; position:relative; }
+    #exporters::before{ content:""; position:absolute;left:0;right:0;top:-1px;height:1px;
+      background:linear-gradient(90deg,#ffffff00,#e5e7eb,#ffffff00); }
     .chip{ border:0; cursor:pointer; padding:8px 12px; border-radius:999px; color:#fff; font-weight:700;
       display:inline-flex; align-items:center; gap:6px; box-shadow:0 8px 18px #00000014, inset 0 -6px 12px #0000000f;
       transition:transform .06s, filter .15s; }
@@ -89,7 +91,7 @@
     .chip-html{ background:linear-gradient(135deg,#14b8a6,#0ea5e9); }
     .chip-pdf { background:linear-gradient(135deg,#f43f5e,#fb7185); }
 
-    /* 카테고리 (밑줄 인디케이터 제거) */
+    /* 카테고리: 라벨 + 세그먼트 탭 (밑줄 제거) */
     #catHeader{ display:flex; align-items:center; justify-content:center; gap:10px; margin-top:14px; }
     #catBadge{
       font-size:12px; font-weight:900; letter-spacing:.6px;
@@ -97,36 +99,43 @@
     }
     #tabWrap{ display:flex; justify-content:center; margin-top:8px; }
     #tabs{
-      display:flex; gap:8px; padding:10px; border-radius:999px;
+      position:relative; display:flex; gap:8px; padding:10px; border-radius:999px;
       background:linear-gradient(180deg,#ffffff,#f8fafc);
       border:1px solid #e5e7eb; box-shadow:0 8px 20px #00000010; overflow:auto; max-width:100%;
     }
     .tab{
+      position:relative;
       border:0; background:transparent; color:#334155;
       padding:10px 14px; border-radius:999px; font-size:13px; cursor:pointer;
-      display:inline-flex; align-items:center; gap:6px; font-weight:800; white-space:nowrap;
-      transition:color .2s ease, background .2s ease;
+      display:inline-flex; align-items:center; gap:6px; font-weight:800;
+      transition:color .2s ease, transform .06s; white-space:nowrap;
     }
+    .tab .ico{ font-style:normal; }
     .tab.active{
       color:#fff;
       background:linear-gradient(135deg,#7c3aed,#22d3ee);
       box-shadow:0 10px 20px #7c3aed33;
     }
 
-    /* 서식 툴바 (접기 지원) */
+    /* 도구 패널(접기/펼치기) */
+    #toolsWrap{ margin-top:12px; }
     #toolsToggle{
-      margin-top:10px; border:0; cursor:pointer;
-      padding:10px 14px; border-radius:12px; font-weight:900; color:#4c1d95;
-      background:linear-gradient(135deg,#ede9fe,#e0e7ff);
-      border:1px solid #ddd6fe; box-shadow:0 6px 14px #00000010;
+      width:100%; border:1px dashed #e5e7eb; background:#fff; color:#334155;
+      border-radius:12px; padding:10px 12px; cursor:pointer; font-weight:900;
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      box-shadow:0 6px 14px #0000000b;
     }
+    #toolsToggle .chev{ transition:transform .2s ease; }
+    #toolsToggle.open .chev{ transform:rotate(180deg); }
     #toolsPanel{
-      overflow:hidden; height:0; opacity:.0; transition:height .28s ease, opacity .28s ease;
+      overflow:hidden; transition:max-height .3s ease, opacity .2s ease;
+      max-height:0; opacity:0;
     }
-    #toolsPanel.open{ height:auto; opacity:1; }
+    #toolsPanel.open{ max-height:360px; opacity:1; }
 
+    /* 서식 툴바 */
     #toolbar{
-      margin-top:12px; padding:10px; border:1px dashed #e5e7eb; border-radius:12px;
+      margin-top:10px; padding:10px; border:1px dashed #e5e7eb; border-radius:12px;
       background:linear-gradient(180deg,#ffffff,#fafbff);
       display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:center;
     }
@@ -154,18 +163,28 @@
     .color-picker{ appearance:none; width:28px; height:28px; border-radius:8px; border:1px solid #e5e7eb; padding:0; }
     .color-picker::-webkit-color-swatch{ border:none; border-radius:8px; }
 
-    /* 이미지 리사이즈 */
-    .img-selected{ outline:2px solid #7c3aed; outline-offset:2px; }
-    .img-handle{ position:absolute; width:12px; height:12px; border-radius:50%; background:#7c3aed; box-shadow:0 2px 6px #00000033; cursor:nwse-resize; right:-6px; bottom:-6px; z-index:2; }
-    .img-fab{ position:absolute; transform:translate(-50%,-100%); left:50%; top:0; background:#111827; color:#fff; padding:8px 10px; border-radius:12px; box-shadow:0 10px 24px #00000033; display:flex; align-items:center; gap:8px; z-index:2; }
-    .img-fab input[type="range"]{ width:120px; }
-    .img-fab button{ border:0; border-radius:999px; padding:6px 8px; cursor:pointer; font-weight:800; }
-    .img-fab .p50{ background:#fde68a; } .img-fab .p75{ background:#a7f3d0; } .img-fab .p100{ background:#bfdbfe; }
-
-    /* 전역 폰트 컨트롤 */
+    /* 폰트 컨트롤 */
     #fontBox{ margin-top:8px; display:flex; justify-content:center; align-items:center; gap:8px; }
     #fontBox .btn{ padding:6px 10px; border-radius:8px; border:1px dashed #e5e7eb; background:#fff; cursor:pointer; }
     #fontBox .val{ font-weight:800; color:#334155; min-width:50px; text-align:center; }
+
+    /* 이미지 리사이즈 */
+    .img-selected{ outline:2px solid #7c3aed; outline-offset:2px; }
+    .img-handle{
+      position:absolute; width:12px; height:12px; border-radius:50%;
+      background:#7c3aed; box-shadow:0 2px 6px #00000033; cursor:nwse-resize;
+      right:-6px; bottom:-6px; z-index:2;
+    }
+    .img-fab{
+      position:absolute; transform:translate(-50%,-100%); left:50%; top:0;
+      background:#111827; color:#fff; padding:8px 10px; border-radius:12px;
+      box-shadow:0 10px 24px #00000033; display:flex; align-items:center; gap:8px; z-index:2;
+    }
+    .img-fab input[type="range"]{ width:120px; }
+    .img-fab button{ border:0; border-radius:999px; padding:6px 8px; cursor:pointer; font-weight:800; }
+    .img-fab .p50{ background:#fde68a; }
+    .img-fab .p75{ background:#a7f3d0; }
+    .img-fab .p100{ background:#bfdbfe; }
   </style>
 </head>
 <body>
@@ -183,7 +202,7 @@
       <h1 class="title">어메이징사업부 블로그 자동화</h1>
     </div>
 
-    <!-- 카카오 링크 생성기 (원본 유지) -->
+    <!-- 카카오 링크 생성기 -->
     <div class="card" id="chat-link-maker">
       <label style="display:block;font-size:14px;font-weight:800;margin-bottom:10px">카카오톡 블로그 채널링크 🔗</label>
       <div style="display:flex;gap:8px;align-items:center">
@@ -205,11 +224,9 @@
 
       <!-- 카테고리 -->
       <div id="catHeader"><span id="catBadge">카테고리</span></div>
-      <div id="tabWrap">
-        <div class="helpers" id="tabs"><!-- tabs inject --></div>
-      </div>
+      <div id="tabWrap"><div class="helpers" id="tabs"><!-- tabs inject --></div></div>
 
-      <!-- helpers (3개 로테이션) -->
+      <!-- 3개 로테이션 헬퍼 -->
       <div class="helpers" id="helpers"></div>
 
       <!-- 내보내기 -->
@@ -219,33 +236,35 @@
         <button class="chip chip-pdf"  id="downloadPdf"  disabled>PDF 저장</button>
       </div>
 
-      <!-- 도구 툴: 접기/펼치기 -->
-      <div class="helpers">
-        <button id="toolsToggle">도구 툴 열기 ▾</button>
-      </div>
-      <div id="toolsPanel">
-        <!-- 서식 툴바 -->
-        <div id="toolbar" class="helpers">
-          <button class="tool t-bold"      data-cmd="bold">굵게</button>
-          <button class="tool t-italic"    data-cmd="italic">기울임</button>
-          <button class="tool t-underline" data-cmd="underline">밑줄</button>
-          <button class="tool t-h2"        data-cmd="formatBlock" data-val="H2">H2</button>
-          <button class="tool t-h3"        data-cmd="formatBlock" data-val="H3">H3</button>
-          <button class="tool t-ul"        data-cmd="insertUnorderedList">목록</button>
-          <button class="tool t-ol"        data-cmd="insertOrderedList">번호</button>
-          <button class="tool t-left"      data-cmd="justifyLeft">왼쪽</button>
-          <button class="tool t-center"    data-cmd="justifyCenter">가운데</button>
-          <button class="tool t-right"     data-cmd="justifyRight">오른쪽</button>
-          <button class="tool t-link"      id="mkLink">링크</button>
-          <label class="tool t-color" style="gap:8px;">
-            색상 <input type="color" id="foreColor" class="color-picker" value="#333333" title="텍스트 색상"/>
-          </label>
-        </div>
-        <!-- 전역 글씨크기 -->
-        <div id="fontBox" class="helpers">
-          <button class="btn" id="fontDown">A-</button>
-          <span class="val" id="fontVal">100%</span>
-          <button class="btn" id="fontUp">A+</button>
+      <!-- 도구 패널 -->
+      <div id="toolsWrap">
+        <button id="toolsToggle">
+          <span class="chev">▾</span> <span>✦ 도구 패널</span>
+        </button>
+        <div id="toolsPanel">
+          <div id="toolbar" class="helpers">
+            <button class="tool t-bold"      data-cmd="bold">굵게</button>
+            <button class="tool t-italic"    data-cmd="italic">기울임</button>
+            <button class="tool t-underline" data-cmd="underline">밑줄</button>
+            <button class="tool t-h2"        data-cmd="formatBlock" data-val="H2">H2</button>
+            <button class="tool t-h3"        data-cmd="formatBlock" data-val="H3">H3</button>
+            <button class="tool t-ul"        data-cmd="insertUnorderedList">목록</button>
+            <button class="tool t-ol"        data-cmd="insertOrderedList">번호</button>
+            <button class="tool t-left"      data-cmd="justifyLeft">왼쪽</button>
+            <button class="tool t-center"    data-cmd="justifyCenter">가운데</button>
+            <button class="tool t-right"     data-cmd="justifyRight">오른쪽</button>
+            <button class="tool t-link"      id="mkLink">링크</button>
+            <label class="tool t-color" style="gap:8px;">
+              색상 <input type="color" id="foreColor" class="color-picker" value="#333333" title="텍스트 색상"/>
+            </label>
+          </div>
+
+          <!-- 전역 글씨크기 (A-/A+) -->
+          <div id="fontBox" class="helpers">
+            <button class="btn" id="fontDown">A-</button>
+            <span class="val" id="fontVal">100%</span>
+            <button class="btn" id="fontUp">A+</button>
+          </div>
         </div>
       </div>
 
@@ -253,7 +272,7 @@
     </div>
   </div>
 
-  <!-- 카테고리 데이터(보험 키워드) -->
+  <!-- 카테고리별 주제 JSON -->
   <script type="application/json" id="topic-categories">{
     "실손보험": ["실손보험 청구서류 목록 2025","실손보험 청구 방법 앱/병원 비교","실손보험 통원비 청구 기준","실손보험 비급여 주사 보장 여부","도수치료 실손보험 청구 가능 기준","MRI/MRA 실손보험 인정 범위","초음파/내시경 실손보험 적용?","치과 스케일링 실손 보장 되는지","한의원 치료 실손 청구 요령","약제비 실손보험 청구 절차","전자영수증·처방전 분실 대처","실손보험 공제금·자기부담 계산","표준화 실손 vs 신규실손 차이","실손보험 갱신 주기·인상 요인","실손 특약 최소/권장 구성","실손보험 합산한도·중복가입 주의","스마트청구 앱 사용법 비교","실손 청구기한·심사 기간","부지급 빈번 사유 Top10","입원의료비/통원의료비 차이","의무기록사본·진단서 준비","비급여 코드 확인 방법","해외 진료 실손 청구 가능?","도우미·간병비 보장 여부","질병/상해 구분 체크리스트","치료비 선결제 후 청구 팁","실손 보상비율 계산 예시","이중 청구 방지 체크포인트","실손 재가입·전환 시 유의점","실손보험 해지·유지 판단 가이드"],
     "암보험": ["암보험 진단비 지급조건 핵심","유사암 보장 범위·예외 조항","갑상선암 소액암 기준 2025","기타피부암 코드·청구 포인트","표적항암·면역항암 보장 구조","항암 방사선/수술 보장 비교","암 산정특례 신청·서류 안내","입원일당·수술비 특약 구성법","재진단암 보장 조건 체크","항암 부작용 보장(오심·탈모 등)","갱신형 vs 비갱신형 비교","무해지환급형 장단점","여성암 특약(유방·자궁) 비교","남성암 특약(전립선 등) 체크","가족력 있을 때 가입 팁","가입 전 고지사항 체크리스트","부지급 자주 나오는 사례","암진단 코드 체계 이해","표적치료제 본인부담 사례","면역항암 급여/비급여 차이","암 치료비 절감 꿀팁","보험료 인상 요인·관리법","특약 간 중복 보장 주의","치료 후 추가검사 보장","유사암→일반암 전환 케이스","치료 중 이사·병원 변경 청구","완치 후 재가입 가능 여부","어린이 암보험 체크포인트","고령자 암보험 가입 가능?","암보험 약관 읽는 법"],
@@ -379,7 +398,7 @@
   btn.addEventListener('click', send);
   q.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); send(); }});
 
-  // ===== 카테고리 탭 + 3개 로테이션 =====
+  // ===== 카테고리 탭 + 3개 로테이션 (밑줄 제거 버전) =====
   const tabsEl=$('#tabs'), helpersEl=$('#helpers'); const ROTATE_MS=12000;
   let categories={}, catNames=[], currentCat=null, order=[], cursor=0, rotateTimer=null;
 
@@ -390,7 +409,7 @@
 
   function renderTabs(){
     const icons=["🏷️","📑","🚗","🧓","✈️","❤️","🦷","🧒","👵","🐶"];
-    tabsEl.innerHTML=catNames.map((c,i)=>
+    tabsEl.innerHTML = catNames.map((c,i)=>
       `<button class="tab ${i===0?'active':''}" data-cat="${escAttr(c)}"><span class="ico">${icons[i%icons.length]}</span>${escHtml(c)}</button>`
     ).join('');
     currentCat=catNames[0]||null; resetRotation();
@@ -405,10 +424,16 @@
     const idxs=order.slice(cursor, cursor+n); cursor+=n; return idxs.map(i=>pool[i]);
   }
   function renderHelpers(){ const items=nextSet(3); helpersEl.innerHTML=items.map(t=>`<button class="helper" data-text="${escAttr(t)}">${escHtml(t)}</button>`).join(''); }
-  tabsEl.addEventListener('click',(e)=>{ const tab=e.target.closest('.tab'); if(!tab) return; tabsEl.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); tab.classList.add('active'); currentCat=tab.getAttribute('data-cat'); resetRotation(); });
+  tabsEl.addEventListener('click',(e)=>{
+    const tab=e.target.closest('.tab'); if(!tab) return;
+    tabsEl.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    tab.classList.add('active');
+    currentCat=tab.getAttribute('data-cat');
+    resetRotation();
+  });
   if(helpersEl){ helpersEl.addEventListener('click',(e)=>{ const b=e.target.closest('.helper'); if(!b) return; q.value=b.getAttribute('data-text')||b.textContent||''; }); }
 
-  // ===== 서식 툴바 =====
+  // ===== 툴바 명령 =====
   function applyCmd(cmd,val=null){ if(!editMode) toggleEditMode(); document.execCommand(cmd,false,val); res.focus(); }
   $('#toolbar').addEventListener('click',(e)=>{
     const b=e.target.closest('.tool'); if(!b) return;
@@ -421,16 +446,13 @@
   const FONT_MIN=80, FONT_MAX=180;
   let globalFont=100;
   function clamp(v,min,max){ return Math.max(min, Math.min(max,v)); }
-  function applyGlobalFont(){ globalFont=clamp(globalFont, FONT_MIN, FONT_MAX); res.style.fontSize=globalFont+'%'; $('#fontVal').textContent=globalFont+'%'; }
+  function applyGlobalFont(){
+    globalFont=clamp(globalFont, FONT_MIN, FONT_MAX);
+    res.style.fontSize=globalFont+'%';
+    $('#fontVal').textContent=globalFont+'%';
+  }
   $('#fontDown').addEventListener('click', ()=>{ globalFont=clamp(globalFont-10,FONT_MIN,FONT_MAX); applyGlobalFont(); });
   $('#fontUp').addEventListener('click',   ()=>{ globalFont=clamp(globalFont+10,FONT_MIN,FONT_MAX); applyGlobalFont(); });
-
-  // ===== 도구 패널 토글 =====
-  const toolsToggle=$('#toolsToggle'), toolsPanel=$('#toolsPanel');
-  toolsToggle.addEventListener('click', ()=>{
-    const open = toolsPanel.classList.toggle('open');
-    toolsToggle.textContent = open ? '도구 툴 닫기 ▴' : '도구 툴 열기 ▾';
-  });
 
   // ===== 이미지 드래그&드롭/붙여넣기 + 리사이즈 =====
   function insertAtCaret(node){
@@ -452,10 +474,11 @@
       reader.readAsDataURL(file);
     });
   }
-  res.addEventListener('dragover', (e)=>{ e.preventDefault(); res.classList.add('editing'); });
-  res.addEventListener('dragleave', ()=>{ res.classList.toggle('editing', !!editMode); });
-  res.addEventListener('drop', (e)=>{ e.preventDefault(); handleFiles(e.dataTransfer.files); res.classList.toggle('editing', !!editMode); });
-  res.addEventListener('paste', (e)=>{
+  const resEl=res;
+  resEl.addEventListener('dragover', (e)=>{ e.preventDefault(); resEl.classList.add('editing'); });
+  resEl.addEventListener('dragleave', ()=>{ resEl.classList.toggle('editing', !!editMode); });
+  resEl.addEventListener('drop', (e)=>{ e.preventDefault(); handleFiles(e.dataTransfer.files); resEl.classList.toggle('editing', !!editMode); });
+  resEl.addEventListener('paste', (e)=>{
     const items=e.clipboardData && e.clipboardData.items; if(!items) return;
     const imgs=[]; for(const it of items){ if(it.type && it.type.indexOf('image/')===0) imgs.push(it.getAsFile()); }
     if(imgs.length){ e.preventDefault(); handleFiles(imgs); }
@@ -520,9 +543,11 @@
     fabEl.querySelector('.p75').addEventListener('click',()=>{ img.style.width='75%'; updateFab(75); });
     fabEl.querySelector('.p100').addEventListener('click',()=>{ img.style.width='100%'; updateFab(100); });
   }
-  function updateFab(pct){ const range=fabEl?.querySelector('input[type="range"]'); if(range) range.value=Math.max(10,Math.min(100,pct)); }
+  function updateFab(pct){
+    const range=fabEl?.querySelector('input[type="range"]'); if(range) range.value=Math.max(10,Math.min(100,pct));
+  }
 
-  // ===== 카카오 링크 생성기 (원본 유지) =====
+  // 카카오 링크 생성기
   (function(){
     const BASE='https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook/kakao-redirect';
     const key=$('#k-key'); const btnMake=$('#k-make'); const btnCopy=$('#k-copy'); const out=$('#k-result');
@@ -534,15 +559,27 @@
     key.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); build(); }});
   })();
 
-  // ===== 부팅 =====
-  const tabsEl=$('#tabs'); const helpersEl=$('#helpers');
-  function init(){
+  // 도구 패널 토글
+  (function(){
+    const toggle=$('#toolsToggle'), panel=$('#toolsPanel');
+    let open=false;
+    const setOpen=(v)=>{
+      open=v;
+      toggle.classList.toggle('open',open);
+      panel.classList.toggle('open',open);
+      toggle.querySelector('.chev').textContent = open ? '▴' : '▾';
+    };
+    toggle.addEventListener('click', ()=>setOpen(!open));
+    // 초기는 닫힘
+    setOpen(false);
+  })();
+
+  // 초기화
+  (function init(){
     const cats=loadCategories(); categories=cats; catNames=Object.keys(categories);
-    if(catNames.length){ renderTabs(); } else { tabsEl.innerHTML=''; helpersEl.innerHTML='<div class="placeholder">주제 풀이 없습니다</div>'; }
-    attachResizeToImages();
-    enableExports(false);
-  }
-  document.addEventListener('DOMContentLoaded', init);
+    if(catNames.length){ renderTabs(); } else { $('#tabs').innerHTML=''; $('#helpers').innerHTML='<div class="placeholder">주제 풀이 없습니다</div>'; }
+    enableExports(false); // 시작은 비활성화
+  })();
 </script>
 </body>
 </html>
