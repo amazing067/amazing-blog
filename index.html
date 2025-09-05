@@ -71,10 +71,8 @@
       background-size:200% 100%;animation:shine 3s linear infinite;
     }
     .test-indicator{position:fixed;top:10px;right:10px;background:#ff6b35;color:#fff;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:bold;z-index:1000;}
-
-    /* ▼▼ 추가: 수정 모드 시 시각 표시 */
+    /* edit mode marker */
     .res.editing{ outline:2px dashed #9b87f5; box-shadow: inset 0 0 0 3px #f3f0ff; }
-    /* ▲▲ 추가 끝 */
   </style>
 </head>
 <body>
@@ -83,16 +81,16 @@
       <div class="sticker" aria-hidden="true">
         <svg viewBox="0 0 80 80" width="58" height="58">
           <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#fef3c7"/><stop offset="1" stop-color="#fde68a"/></linearGradient></defs>
-          <circle cx="40" cy="40" r="28" fill="url(#g)" stroke="#fbbf24" stroke-width="2"/>
-          <circle cx="32" cy="35" r="4" fill="#1f2937"/><circle cx="48" cy="35" r="4" fill="#1f2937"/>
-          <path d="M28 49 Q40 58 52 49" stroke="#1f2937" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <path d="M18 26 26 18 M54 18 62 26" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="40" cy="40" r="28" fill="url(#g)" stroke="#fbbf24" stroke-width="2"/>
+        <circle cx="32" cy="35" r="4" fill="#1f2937"/><circle cx="48" cy="35" r="4" fill="#1f2937"/>
+        <path d="M28 49 Q40 58 52 49" stroke="#1f2937" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M18 26 26 18 M54 18 62 26" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
         </svg>
       </div>
       <h1 class="title">어메이징사업부 블로그 자동화</h1>
     </div>
 
-    <!-- ▼▼▼ 초간단 카카오톡 채널 링크 생성기 (이미지/제목 아래) ▼▼▼ -->
+    <!-- 카카오 채널 링크 생성기 -->
     <div class="card" id="chat-link-maker">
       <label style="display:block;font-size:14px;font-weight:800;margin-bottom:10px">
         카카오톡 블로그 채널링크 🔗
@@ -110,7 +108,6 @@
         <button id="k-copy" class="send" type="button" style="white-space:nowrap">복사 📋</button>
       </div>
     </div>
-    <!-- ▲▲▲ 추가 끝 ▲▲▲ -->
 
     <div class="card">
       <div class="ask">
@@ -118,59 +115,84 @@
         <button id="send" class="send" type="button"><span id="sendLabel">Send</span> 🚀</button>
       </div>
 
+      <!-- helpers: JS가 3개씩 랜더링함 -->
       <div class="helpers" id="helpers">
-        <button class="helper" data-text="실손보험 청구 서류 요약해줘">실손 서류 요약</button>
-        <button class="helper" data-text="항암 중입자 치료 보장 핵심만 알려줘">중입자치료 핵심</button>
-        <button class="helper" data-text="장기요양보험 등급별 차이를 표로 정리해줘">장기요양 표정리</button>
-        <button class="helper" data-text="암 주요치료비 보장 항목을 간단히 정리해줘">암 주요치료비 핵심</button>
-        <button class="helper" data-text="뇌혈관·심장질환 진단비 차이를 한 문단으로 설명해줘">뇌심 진단비 비교</button>
-        <button class="helper" data-text="유병자 보험 3.N.5 구조를 초보자용으로 설명해줘">3.N.5 설명</button>
-        <button class="helper" data-text="상급병실 특약이 실제 보장에 어떤 영향을 주는지 알려줘">상급병실 특약</button>
-        <button class="helper" data-text="간병인 보험 주요 조건과 주의할 점만 모아줘">간병인 보험 포인트</button>
+        <!-- JS will inject three buttons here -->
       </div>
 
-      <!-- ▼▼ 추가: 결과 영역 컨트롤 버튼 -->
+      <!-- 결과 영역 컨트롤 -->
       <div class="helpers" id="exporters">
         <button class="helper" id="toggleEdit">수정 모드</button>
         <button class="helper" id="downloadHtml" disabled>HTML 저장</button>
         <button class="helper" id="downloadPdf" disabled>PDF 저장</button>
       </div>
-      <!-- ▲▲ 추가 끝 -->
 
-      <div id="res" class="res"></div>
+      <div id="res" class="res"><div class="placeholder">결과는 여기에 표시됩니다</div></div>
     </div>
   </div>
 
+  <!-- 검색 의도형 주제 리스트(JSON, JS 아님) -->
+  <script type="application/json" id="topic-data">[
+    "실손보험 청구서류 체크리스트 2025",
+    "실손보험 청구 방법 병원서류부터 앱청구까지",
+    "실손보험 통원비 영수증 누락 대처법",
+    "암보험 진단비 지급조건 핵심정리",
+    "유사암 보장 범위 기·갑·경·제 차이",
+    "여성암 보험 유방암·자궁암 비교 2025",
+    "질병수술비 보장 항목과 면책기간 이해",
+    "골절보험 깁스·통원 보장 실제 사례",
+    "운전자보험 특약 최소 구성 가이드",
+    "운전자보험 면책·예외 조항 꼭 알아두기",
+    "뇌혈관질환·허혈성심장질환 진단비 차이",
+    "뇌 MRI·MRA 촬영 보험 청구 가능범위",
+    "장기요양보험 등급 판정 기준과 준비서류",
+    "간병인 비용 보장 실손 vs 정액 비교",
+    "치매보험 경도·중등도·중증 지급기준",
+    "대체의료 중입자·양성자 치료 보장 비교",
+    "암 산정특례 신청 방법과 절차",
+    "표적항암·면역항암 치료비 보장 구조",
+    "갱신형 vs 비갱신형 보험 장단점 비교",
+    "무해지형 보험 환급 구조 이해하기",
+    "유병자 보험 3·2·5 조건과 인수 포인트",
+    "건강검진 전 보험 가입 시 유의사항",
+    "운전자보험 최저 구성과 벌점·면허정지 특약",
+    "어린이보험 태아·출생 직후 보장 체크",
+    "산업재해보험 산재 승인 절차 7단계",
+    "해외여행자보험 의료·항공지연 보장 범위",
+    "골절·화상 수술비 중복 보장 가능할까",
+    "기타피부암 코드 기준과 청구 포인트",
+    "갑상선암 소액암 기준과 예외 사례",
+    "보험금 부지급 빈번한 사유 TOP7"
+  ]</script>
+
 <script>
-  // 테스트 모드 확인
+  // test mode
   function isTestMode() {
     return window.location.search.includes('test=true') || window.location.search.includes('debug=true');
   }
-  // 어디로 보낼지: hooks 도메인(고정) + 워크플로우 경로만 바꾸면 됨
   const HOOKS_BASE = 'https://hooks.xn--h32b21du9cf7grcy2k20f.com';
-  const WF_PATH = 'ask'; // ← 여기만 다른 워크플로우의 Webhook Path로 바꿔도 OK (예: 'blog-writer')
+  const WF_PATH = 'ask';
   const WEBHOOK_URL = isTestMode()
-    ? `${HOOKS_BASE}/webhook-test/${WF_PATH}`   // 에디터 Test 모드 (실시간 캡처)
-    : `${HOOKS_BASE}/webhook/${WF_PATH}`;       // 운영 모드
+    ? `${HOOKS_BASE}/webhook-test/${WF_PATH}`
+    : `${HOOKS_BASE}/webhook/${WF_PATH}`;
 
   if (isTestMode()) {
     const indicator = document.createElement('div');
     indicator.className = 'test-indicator';
     indicator.textContent = 'TEST MODE';
     document.body.appendChild(indicator);
-    console.log('🔧 테스트 모드 활성화 - n8n Editor에서 실시간 확인 가능');
-    console.log('📡 사용 중인 웹훅 URL:', WEBHOOK_URL);
+    console.log('Test mode: Editor live capture enabled');
+    console.log('Webhook URL:', WEBHOOK_URL);
   }
 
   const $ = (s)=>document.querySelector(s);
   const q = $('#q'), btn = $('#send'), res = $('#res'), sendLabel = $('#sendLabel');
-  res.innerHTML = '<div class="placeholder">결과는 여기에 표시됩니다</div>';
 
   function loading(on){
     if(on){
       btn.disabled = true;
       sendLabel.innerHTML = '<span class="spin"></span>';
-      res.innerHTML = '<div class="status"><span class="spin"></span>💡 AI가 열심히 작업 중입니다…</div>';
+      res.innerHTML = '<div class="status"><span class="spin"></span>AI is working…</div>';
     } else {
       btn.disabled = false;
       sendLabel.textContent = 'Send';
@@ -184,7 +206,6 @@
     return { ok:r.ok, status:r.status, data };
   }
 
-  // ---- HTML 감지/복원/렌더 ----
   function looksLikeHtml(s){
     return /^\s*<(?:!DOCTYPE|html|body|main|div|section|article|h1|h2|p|iframe)\b/i.test(s || "");
   }
@@ -229,24 +250,57 @@
     return null;
   }
 
-  // ▼▼ 추가: 수정 모드 상태
+  // edit mode + exports
   let editMode = false;
+  const dlHtmlBtn = document.getElementById('downloadHtml');
+  const dlPdfBtn  = document.getElementById('downloadPdf');
+  const toggleBtn = document.getElementById('toggleEdit');
 
-  function renderHtmlIntoResult(html){
-    const cleaned = decodeHtmlEntities(html);
-    const embeddable = extractEmbeddable(cleaned);
-    res.innerHTML = embeddable;
-    res.style.whiteSpace = 'normal';
-    res.style.textAlign = 'left';
-    res.style.display = 'block';
-    res.style.minHeight = 'auto';
-    // 수정 모드 유지
+  function enableExports(on){
+    if(!dlHtmlBtn || !dlPdfBtn) return;
+    dlHtmlBtn.disabled = !on;
+    dlPdfBtn.disabled  = !on;
+  }
+  function currentResultHTML(){
+    const inner = res.innerHTML || '';
+    const doc = [
+      '<!DOCTYPE html>',
+      '<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>result</title></head><body>',
+      inner,
+      '</body></html>'
+    ].join('');
+    return doc;
+  }
+  function downloadHTMLFile(){
+    const content = currentResultHTML();
+    const blob = new Blob([content], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'result.html';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+  function downloadPDFFile(){
+    const content = currentResultHTML();
+    const w = window.open('', '_blank');
+    if(!w){ alert('Allow popups to export PDF.'); return; }
+    w.document.open();
+    w.document.write(content);
+    w.document.close();
+    w.focus();
+    setTimeout(()=>{ w.print(); }, 150);
+  }
+  function toggleEditMode(){
+    editMode = !editMode;
     res.contentEditable = editMode ? "true" : "false";
     res.classList.toggle('editing', !!editMode);
-    // 결과가 생기면 다운로드 버튼 활성화
-    enableExports(true);
+    toggleBtn.textContent = editMode ? '수정 종료' : '수정 모드';
   }
+  if (dlHtmlBtn) dlHtmlBtn.addEventListener('click', downloadHTMLFile);
+  if (dlPdfBtn)  dlPdfBtn.addEventListener('click',  downloadPDFFile);
+  if (toggleBtn) toggleBtn.addEventListener('click', toggleEditMode);
 
+  // send action
   async function send(){
     const topic = q.value.trim();
     if(topic.length < 2){ q.focus(); res.textContent='Please enter at least 2 characters.'; return; }
@@ -261,7 +315,16 @@
       const ans = r.data?.answer ?? r.data?.data ?? r.data?.raw ?? r.data ?? { ok:true };
       const html = pickHtmlPayload(r.data, typeof ans==='string' ? ans : '');
       if (html){
-        renderHtmlIntoResult(html);
+        const cleaned = decodeHtmlEntities(html);
+        const embeddable = extractEmbeddable(cleaned);
+        res.innerHTML = embeddable;
+        res.style.whiteSpace = 'normal';
+        res.style.textAlign = 'left';
+        res.style.display = 'block';
+        res.style.minHeight = 'auto';
+        res.contentEditable = editMode ? "true" : "false";
+        res.classList.toggle('editing', !!editMode);
+        enableExports(true);
         return;
       }
       res.textContent = (typeof ans==='string') ? ans : JSON.stringify(ans,null,2);
@@ -274,7 +337,75 @@
   btn.addEventListener('click', send);
   q.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); send(); }});
 
-  /* ---- Simple Kakao Chat Link Generator (PROD redirect base) ---- */
+  // helpers: rotating 3 topics, clickable
+  const helpersEl = document.getElementById('helpers');
+  const ROTATE_MS = 12000; // 12s
+  let topicPool = [];
+  let order = [];
+  let cursor = 0;
+  let rotateTimer = null;
+
+  function loadTopics(){
+    try{
+      const raw = document.getElementById('topic-data')?.textContent || '[]';
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr.filter(Boolean) : [];
+    }catch{ return []; }
+  }
+  function shuffle(a){
+    const x = a.slice();
+    for(let i=x.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [x[i],x[j]] = [x[j],x[i]];
+    }
+    return x;
+  }
+  function escHtml(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function escAttr(s){
+    return escHtml(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  function nextSet(n=3){
+    if(cursor >= order.length){
+      order = shuffle(order);
+      cursor = 0;
+    }
+    const idxs = order.slice(cursor, cursor+n);
+    cursor += n;
+    return idxs.map(i => topicPool[i]);
+  }
+  function renderHelpers(){
+    if(!helpersEl) return;
+    const items = nextSet(3);
+    helpersEl.innerHTML = items.map(t =>
+      `<button class="helper" data-text="${escAttr(t)}">${escHtml(t)}</button>`
+    ).join('');
+  }
+  function startRotate(){
+    if(rotateTimer) clearInterval(rotateTimer);
+    rotateTimer = setInterval(renderHelpers, ROTATE_MS);
+  }
+  function initHelpers(){
+    topicPool = loadTopics();
+    order = topicPool.map((_,i)=>i);
+    order = shuffle(order);
+    cursor = 0;
+    renderHelpers();
+    startRotate();
+  }
+  // click-to-send (event delegation)
+  if (helpersEl){
+    helpersEl.addEventListener('click', (e)=>{
+      const btnEl = e.target.closest('.helper');
+      if(!btnEl) return;
+      const text = btnEl.getAttribute('data-text') || btnEl.textContent || '';
+      q.value = text;
+      send();
+    });
+  }
+
+  // Kakao link generator
   (function(){
     const BASE = 'https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook/kakao-redirect';
     const key = document.getElementById('k-key');
@@ -282,10 +413,7 @@
     const btnCopy = document.getElementById('k-copy');
     const out = document.getElementById('k-result');
 
-    function uid(){
-      return Date.now().toString(36) + Math.random().toString(36).slice(2,10);
-    }
-
+    function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,10); }
     function build(){
       const kw = (key.value || '').trim();
       if(!kw){
@@ -293,14 +421,12 @@
         out.classList.add('placeholder');
         return;
       }
-      // 매 호출마다 고유 utm_content 부여 → 링크 절대 중복 방지
       const u = uid();
       const qs = new URLSearchParams({ ref: kw, utm_content: u }).toString();
       const url = BASE + (BASE.includes('?') ? '&' : '?') + qs;
       out.innerHTML = `<a href="${url}" target="_blank" rel="noopener">${url}</a>`;
       out.classList.remove('placeholder');
     }
-
     async function copy(){
       const a = out.querySelector('a');
       const url = a ? a.href : (out.textContent || '').trim();
@@ -320,69 +446,13 @@
         setTimeout(()=>{ btnCopy.textContent = '복사 📋'; }, 1200);
       }
     }
-
-    btnMake.addEventListener('click', build);
-    btnCopy.addEventListener('click', copy);
-    key.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); build(); }});
+    if (btnMake) btnMake.addEventListener('click', build);
+    if (btnCopy) btnCopy.addEventListener('click', copy);
+    if (key) key.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); build(); }});
   })();
 
-  // ▼▼ 추가: 결과 저장/수정 모드 토글 기능
-  const dlHtmlBtn = document.getElementById('downloadHtml');
-  const dlPdfBtn  = document.getElementById('downloadPdf');
-  const toggleBtn = document.getElementById('toggleEdit');
-
-  function enableExports(on){
-    if(!dlHtmlBtn || !dlPdfBtn) return;
-    dlHtmlBtn.disabled = !on;
-    dlPdfBtn.disabled  = !on;
-  }
-
-  function currentResultHTML(){
-    // wrap to standalone HTML file with charset meta
-    const inner = res.innerHTML || '';
-    const doc = [
-      '<!DOCTYPE html>',
-      '<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>result</title></head><body>',
-      inner,
-      '</body></html>'
-    ].join('');
-    return doc;
-  }
-
-  function downloadHTMLFile(){
-    const content = currentResultHTML();
-    const blob = new Blob([content], { type: 'text/html;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'result.html';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
-
-  function downloadPDFFile(){
-    // open a print-only window; user selects "Save as PDF"
-    const content = currentResultHTML();
-    const w = window.open('', '_blank');
-    if(!w){ alert('Popup blocked. Please allow popups for this site.'); return; }
-    w.document.open();
-    w.document.write(content);
-    w.document.close();
-    w.focus();
-    // small delay ensures content is rendered before print
-    setTimeout(()=>{ w.print(); }, 150);
-  }
-
-  function toggleEditMode(){
-    editMode = !editMode; // keep JS strings in English only
-    res.contentEditable = editMode ? "true" : "false";
-    res.classList.toggle('editing', !!editMode);
-    toggleBtn.textContent = editMode ? '수정 종료' : '수정 모드';
-  }
-
-  if (dlHtmlBtn) dlHtmlBtn.addEventListener('click', downloadHTMLFile);
-  if (dlPdfBtn)  dlPdfBtn.addEventListener('click',  downloadPDFFile);
-  if (toggleBtn) toggleBtn.addEventListener('click', toggleEditMode);
-  // ▲▲ 추가 끝
+  // boot
+  document.addEventListener('DOMContentLoaded', initHelpers);
 </script>
 </body>
 </html>
