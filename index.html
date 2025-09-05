@@ -65,7 +65,7 @@
     .res{
       margin-top:14px;background:#fff;border:1px solid #eef2ff;border-radius:16px;padding:14px;min-height:130px;
       white-space:pre-wrap;line-height:1.6;
-      overflow-wrap:anywhere; word-break:break-word; overflow:auto;
+      overflow-wrap:anywhere; word-break:break-word; overflow:auto;  /* 밖으로 안나가게 */
     }
     .placeholder{color:#9ca3af;font-size:14px}
     .status{
@@ -77,10 +77,8 @@
     .test-indicator{position:fixed;top:10px;right:10px;background:#ff6b35;color:#fff;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:bold;z-index:1000;}
     .res.editing{ outline:2px dashed #9b87f5; box-shadow: inset 0 0 0 3px #f3f0ff; }
 
-    /* exporters 분리선 & 버튼 */
-    #exporters{ border-top:1px dashed #e5e7eb; margin-top:12px; padding-top:12px; position:relative; }
-    #exporters::before{ content:""; position:absolute;left:0;right:0;top:-1px;height:1px;
-      background:linear-gradient(90deg,#ffffff00,#e5e7eb,#ffffff00); }
+    /* exporters */
+    #exporters{ border-top:1px dashed #e5e7eb; margin-top:12px; padding-top:12px; }
     .chip{ border:0; cursor:pointer; padding:8px 12px; border-radius:999px; color:#fff; font-weight:700;
       display:inline-flex; align-items:center; gap:6px; box-shadow:0 8px 18px #00000014, inset 0 -6px 12px #0000000f;
       transition:transform .06s, filter .15s; }
@@ -91,7 +89,7 @@
     .chip-html{ background:linear-gradient(135deg,#14b8a6,#0ea5e9); }
     .chip-pdf { background:linear-gradient(135deg,#f43f5e,#fb7185); }
 
-    /* 카테고리: 라벨 + 세그먼트 탭 + 얇은 하이라이트 바 */
+    /* 카테고리 (밑줄 인디케이터 제거) */
     #catHeader{ display:flex; align-items:center; justify-content:center; gap:10px; margin-top:14px; }
     #catBadge{
       font-size:12px; font-weight:900; letter-spacing:.6px;
@@ -99,32 +97,34 @@
     }
     #tabWrap{ display:flex; justify-content:center; margin-top:8px; }
     #tabs{
-      position:relative; display:flex; gap:8px; padding:10px; border-radius:999px;
+      display:flex; gap:8px; padding:10px; border-radius:999px;
       background:linear-gradient(180deg,#ffffff,#f8fafc);
       border:1px solid #e5e7eb; box-shadow:0 8px 20px #00000010; overflow:auto; max-width:100%;
     }
-    #tabIndicator{
-      position:absolute; bottom:6px; height:4px; border-radius:4px;
-      background:linear-gradient(90deg,#7c3aed,#22d3ee);
-      box-shadow:0 6px 12px #7c3aed44;
-      transition:left .25s ease, width .25s ease;
-      z-index:0;
-    }
     .tab{
-      position:relative; z-index:1;
       border:0; background:transparent; color:#334155;
       padding:10px 14px; border-radius:999px; font-size:13px; cursor:pointer;
-      display:inline-flex; align-items:center; gap:6px; font-weight:800;
-      transition:color .2s ease, transform .06s; white-space:nowrap;
+      display:inline-flex; align-items:center; gap:6px; font-weight:800; white-space:nowrap;
+      transition:color .2s ease, background .2s ease;
     }
-    .tab .ico{ font-style:normal; }
     .tab.active{
       color:#fff;
       background:linear-gradient(135deg,#7c3aed,#22d3ee);
       box-shadow:0 10px 20px #7c3aed33;
     }
 
-    /* 서식 툴바 */
+    /* 서식 툴바 (접기 지원) */
+    #toolsToggle{
+      margin-top:10px; border:0; cursor:pointer;
+      padding:10px 14px; border-radius:12px; font-weight:900; color:#4c1d95;
+      background:linear-gradient(135deg,#ede9fe,#e0e7ff);
+      border:1px solid #ddd6fe; box-shadow:0 6px 14px #00000010;
+    }
+    #toolsPanel{
+      overflow:hidden; height:0; opacity:.0; transition:height .28s ease, opacity .28s ease;
+    }
+    #toolsPanel.open{ height:auto; opacity:1; }
+
     #toolbar{
       margin-top:12px; padding:10px; border:1px dashed #e5e7eb; border-radius:12px;
       background:linear-gradient(180deg,#ffffff,#fafbff);
@@ -156,23 +156,13 @@
 
     /* 이미지 리사이즈 */
     .img-selected{ outline:2px solid #7c3aed; outline-offset:2px; }
-    .img-handle{
-      position:absolute; width:12px; height:12px; border-radius:50%;
-      background:#7c3aed; box-shadow:0 2px 6px #00000033; cursor:nwse-resize;
-      right:-6px; bottom:-6px; z-index:2;
-    }
-    .img-fab{
-      position:absolute; transform:translate(-50%,-100%); left:50%; top:0;
-      background:#111827; color:#fff; padding:8px 10px; border-radius:12px;
-      box-shadow:0 10px 24px #00000033; display:flex; align-items:center; gap:8px; z-index:2;
-    }
+    .img-handle{ position:absolute; width:12px; height:12px; border-radius:50%; background:#7c3aed; box-shadow:0 2px 6px #00000033; cursor:nwse-resize; right:-6px; bottom:-6px; z-index:2; }
+    .img-fab{ position:absolute; transform:translate(-50%,-100%); left:50%; top:0; background:#111827; color:#fff; padding:8px 10px; border-radius:12px; box-shadow:0 10px 24px #00000033; display:flex; align-items:center; gap:8px; z-index:2; }
     .img-fab input[type="range"]{ width:120px; }
     .img-fab button{ border:0; border-radius:999px; padding:6px 8px; cursor:pointer; font-weight:800; }
-    .img-fab .p50{ background:#fde68a; }
-    .img-fab .p75{ background:#a7f3d0; }
-    .img-fab .p100{ background:#bfdbfe; }
+    .img-fab .p50{ background:#fde68a; } .img-fab .p75{ background:#a7f3d0; } .img-fab .p100{ background:#bfdbfe; }
 
-    /* 폰트 컨트롤 */
+    /* 전역 폰트 컨트롤 */
     #fontBox{ margin-top:8px; display:flex; justify-content:center; align-items:center; gap:8px; }
     #fontBox .btn{ padding:6px 10px; border-radius:8px; border:1px dashed #e5e7eb; background:#fff; cursor:pointer; }
     #fontBox .val{ font-weight:800; color:#334155; min-width:50px; text-align:center; }
@@ -213,13 +203,10 @@
         <button id="send" class="send" type="button"><span id="sendLabel">Send</span> 🚀</button>
       </div>
 
-      <!-- 카테고리 라벨 + 탭 -->
+      <!-- 카테고리 -->
       <div id="catHeader"><span id="catBadge">카테고리</span></div>
       <div id="tabWrap">
-        <div class="helpers" id="tabs">
-          <div id="tabIndicator" style="left:8px;width:0px;"></div>
-          <!-- tabs inject -->
-        </div>
+        <div class="helpers" id="tabs"><!-- tabs inject --></div>
       </div>
 
       <!-- helpers (3개 로테이션) -->
@@ -232,36 +219,41 @@
         <button class="chip chip-pdf"  id="downloadPdf"  disabled>PDF 저장</button>
       </div>
 
-      <!-- 서식 툴바 -->
-      <div id="toolbar" class="helpers">
-        <button class="tool t-bold"      data-cmd="bold">굵게</button>
-        <button class="tool t-italic"    data-cmd="italic">기울임</button>
-        <button class="tool t-underline" data-cmd="underline">밑줄</button>
-        <button class="tool t-h2"        data-cmd="formatBlock" data-val="H2">H2</button>
-        <button class="tool t-h3"        data-cmd="formatBlock" data-val="H3">H3</button>
-        <button class="tool t-ul"        data-cmd="insertUnorderedList">목록</button>
-        <button class="tool t-ol"        data-cmd="insertOrderedList">번호</button>
-        <button class="tool t-left"      data-cmd="justifyLeft">왼쪽</button>
-        <button class="tool t-center"    data-cmd="justifyCenter">가운데</button>
-        <button class="tool t-right"     data-cmd="justifyRight">오른쪽</button>
-        <button class="tool t-link"      id="mkLink">링크</button>
-        <label class="tool t-color" style="gap:8px;">
-          색상 <input type="color" id="foreColor" class="color-picker" value="#333333" title="텍스트 색상"/>
-        </label>
+      <!-- 도구 툴: 접기/펼치기 -->
+      <div class="helpers">
+        <button id="toolsToggle">도구 툴 열기 ▾</button>
       </div>
-
-      <!-- 전역 글씨크기 (A-/A+)만) -->
-      <div id="fontBox" class="helpers">
-        <button class="btn" id="fontDown">A-</button>
-        <span class="val" id="fontVal">100%</span>
-        <button class="btn" id="fontUp">A+</button>
+      <div id="toolsPanel">
+        <!-- 서식 툴바 -->
+        <div id="toolbar" class="helpers">
+          <button class="tool t-bold"      data-cmd="bold">굵게</button>
+          <button class="tool t-italic"    data-cmd="italic">기울임</button>
+          <button class="tool t-underline" data-cmd="underline">밑줄</button>
+          <button class="tool t-h2"        data-cmd="formatBlock" data-val="H2">H2</button>
+          <button class="tool t-h3"        data-cmd="formatBlock" data-val="H3">H3</button>
+          <button class="tool t-ul"        data-cmd="insertUnorderedList">목록</button>
+          <button class="tool t-ol"        data-cmd="insertOrderedList">번호</button>
+          <button class="tool t-left"      data-cmd="justifyLeft">왼쪽</button>
+          <button class="tool t-center"    data-cmd="justifyCenter">가운데</button>
+          <button class="tool t-right"     data-cmd="justifyRight">오른쪽</button>
+          <button class="tool t-link"      id="mkLink">링크</button>
+          <label class="tool t-color" style="gap:8px;">
+            색상 <input type="color" id="foreColor" class="color-picker" value="#333333" title="텍스트 색상"/>
+          </label>
+        </div>
+        <!-- 전역 글씨크기 -->
+        <div id="fontBox" class="helpers">
+          <button class="btn" id="fontDown">A-</button>
+          <span class="val" id="fontVal">100%</span>
+          <button class="btn" id="fontUp">A+</button>
+        </div>
       </div>
 
       <div id="res" class="res"><div class="placeholder">결과는 여기에 표시됩니다</div></div>
     </div>
   </div>
 
-  <!-- 카테고리별 주제 JSON (보험 키워드 톤) — 이전 메시지의 것 사용 -->
+  <!-- 카테고리 데이터(보험 키워드) -->
   <script type="application/json" id="topic-categories">{
     "실손보험": ["실손보험 청구서류 목록 2025","실손보험 청구 방법 앱/병원 비교","실손보험 통원비 청구 기준","실손보험 비급여 주사 보장 여부","도수치료 실손보험 청구 가능 기준","MRI/MRA 실손보험 인정 범위","초음파/내시경 실손보험 적용?","치과 스케일링 실손 보장 되는지","한의원 치료 실손 청구 요령","약제비 실손보험 청구 절차","전자영수증·처방전 분실 대처","실손보험 공제금·자기부담 계산","표준화 실손 vs 신규실손 차이","실손보험 갱신 주기·인상 요인","실손 특약 최소/권장 구성","실손보험 합산한도·중복가입 주의","스마트청구 앱 사용법 비교","실손 청구기한·심사 기간","부지급 빈번 사유 Top10","입원의료비/통원의료비 차이","의무기록사본·진단서 준비","비급여 코드 확인 방법","해외 진료 실손 청구 가능?","도우미·간병비 보장 여부","질병/상해 구분 체크리스트","치료비 선결제 후 청구 팁","실손 보상비율 계산 예시","이중 청구 방지 체크포인트","실손 재가입·전환 시 유의점","실손보험 해지·유지 판단 가이드"],
     "암보험": ["암보험 진단비 지급조건 핵심","유사암 보장 범위·예외 조항","갑상선암 소액암 기준 2025","기타피부암 코드·청구 포인트","표적항암·면역항암 보장 구조","항암 방사선/수술 보장 비교","암 산정특례 신청·서류 안내","입원일당·수술비 특약 구성법","재진단암 보장 조건 체크","항암 부작용 보장(오심·탈모 등)","갱신형 vs 비갱신형 비교","무해지환급형 장단점","여성암 특약(유방·자궁) 비교","남성암 특약(전립선 등) 체크","가족력 있을 때 가입 팁","가입 전 고지사항 체크리스트","부지급 자주 나오는 사례","암진단 코드 체계 이해","표적치료제 본인부담 사례","면역항암 급여/비급여 차이","암 치료비 절감 꿀팁","보험료 인상 요인·관리법","특약 간 중복 보장 주의","치료 후 추가검사 보장","유사암→일반암 전환 케이스","치료 중 이사·병원 변경 청구","완치 후 재가입 가능 여부","어린이 암보험 체크포인트","고령자 암보험 가입 가능?","암보험 약관 읽는 법"],
@@ -374,11 +366,11 @@
         const cleaned=decodeHtmlEntities(html); const emb=extractEmbeddable(cleaned);
         res.innerHTML=emb; res.style.whiteSpace='normal'; res.style.textAlign='left'; res.style.display='block'; res.style.minHeight='auto';
         res.contentEditable=editMode?"true":"false"; res.classList.toggle('editing',!!editMode);
-        attachResizeToImages(); enableExports(true); scheduleIdleSave();
+        attachResizeToImages(); enableExports(true);
         return;
       }
       res.textContent=(typeof ans==='string')?ans:JSON.stringify(ans,null,2);
-      enableExports(true); scheduleIdleSave();
+      enableExports(true);
     }catch(e){
       res.textContent='Network error: '+(e?.message||String(e));
       enableExports(false);
@@ -398,16 +390,10 @@
 
   function renderTabs(){
     const icons=["🏷️","📑","🚗","🧓","✈️","❤️","🦷","🧒","👵","🐶"];
-    tabsEl.innerHTML='<div id="tabIndicator"></div>'+catNames.map((c,i)=>
+    tabsEl.innerHTML=catNames.map((c,i)=>
       `<button class="tab ${i===0?'active':''}" data-cat="${escAttr(c)}"><span class="ico">${icons[i%icons.length]}</span>${escHtml(c)}</button>`
     ).join('');
-    currentCat=catNames[0]||null;
-    moveIndicatorToActive(); resetRotation();
-  }
-  function moveIndicatorToActive(){
-    const active=tabsEl.querySelector('.tab.active'); const ind=tabsEl.querySelector('#tabIndicator'); if(!active||!ind) return;
-    ind.style.left = active.offsetLeft + 'px';
-    ind.style.width = active.offsetWidth + 'px';
+    currentCat=catNames[0]||null; resetRotation();
   }
   function resetRotation(){
     const pool=(categories[currentCat]||[]); order=shuffle(pool.map((_,i)=>i)); cursor=0; renderHelpers();
@@ -419,16 +405,11 @@
     const idxs=order.slice(cursor, cursor+n); cursor+=n; return idxs.map(i=>pool[i]);
   }
   function renderHelpers(){ const items=nextSet(3); helpersEl.innerHTML=items.map(t=>`<button class="helper" data-text="${escAttr(t)}">${escHtml(t)}</button>`).join(''); }
-  tabsEl.addEventListener('click',(e)=>{
-    const tab=e.target.closest('.tab'); if(!tab) return;
-    tabsEl.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); tab.classList.add('active');
-    currentCat=tab.getAttribute('data-cat'); moveIndicatorToActive(); resetRotation();
-  });
+  tabsEl.addEventListener('click',(e)=>{ const tab=e.target.closest('.tab'); if(!tab) return; tabsEl.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); tab.classList.add('active'); currentCat=tab.getAttribute('data-cat'); resetRotation(); });
   if(helpersEl){ helpersEl.addEventListener('click',(e)=>{ const b=e.target.closest('.helper'); if(!b) return; q.value=b.getAttribute('data-text')||b.textContent||''; }); }
-  window.addEventListener('resize', moveIndicatorToActive);
 
   // ===== 서식 툴바 =====
-  function applyCmd(cmd,val=null){ if(!editMode) toggleEditMode(); document.execCommand(cmd,false,val); res.focus(); scheduleIdleSave(); }
+  function applyCmd(cmd,val=null){ if(!editMode) toggleEditMode(); document.execCommand(cmd,false,val); res.focus(); }
   $('#toolbar').addEventListener('click',(e)=>{
     const b=e.target.closest('.tool'); if(!b) return;
     if(b.id==='mkLink'){ const url=prompt('링크 URL을 입력하세요'); if(url && /^https?:\/\//i.test(url)) applyCmd('createLink',url); return; }
@@ -440,14 +421,16 @@
   const FONT_MIN=80, FONT_MAX=180;
   let globalFont=100;
   function clamp(v,min,max){ return Math.max(min, Math.min(max,v)); }
-  function applyGlobalFont(){
-    globalFont=clamp(globalFont, FONT_MIN, FONT_MAX);
-    res.style.fontSize=globalFont+'%';
-    $('#fontVal').textContent=globalFont+'%';
-    scheduleIdleSave();
-  }
+  function applyGlobalFont(){ globalFont=clamp(globalFont, FONT_MIN, FONT_MAX); res.style.fontSize=globalFont+'%'; $('#fontVal').textContent=globalFont+'%'; }
   $('#fontDown').addEventListener('click', ()=>{ globalFont=clamp(globalFont-10,FONT_MIN,FONT_MAX); applyGlobalFont(); });
   $('#fontUp').addEventListener('click',   ()=>{ globalFont=clamp(globalFont+10,FONT_MIN,FONT_MAX); applyGlobalFont(); });
+
+  // ===== 도구 패널 토글 =====
+  const toolsToggle=$('#toolsToggle'), toolsPanel=$('#toolsPanel');
+  toolsToggle.addEventListener('click', ()=>{
+    const open = toolsPanel.classList.toggle('open');
+    toolsToggle.textContent = open ? '도구 툴 닫기 ▴' : '도구 툴 열기 ▾';
+  });
 
   // ===== 이미지 드래그&드롭/붙여넣기 + 리사이즈 =====
   function insertAtCaret(node){
@@ -464,7 +447,7 @@
       const reader=new FileReader();
       reader.onload=()=>{
         const img=new Image(); img.src=reader.result; img.style.maxWidth='100%'; img.style.height='auto'; img.style.display='block'; img.style.margin='8px 0';
-        insertAtCaret(img); attachResizeToImage(img); scheduleIdleSave();
+        insertAtCaret(img); attachResizeToImage(img);
       };
       reader.readAsDataURL(file);
     });
@@ -513,7 +496,7 @@
         img.style.width=pct+'%'; img.style.maxWidth='100%';
         updateFab(pct);
       };
-      const onUp=()=>{ document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); scheduleIdleSave(); };
+      const onUp=()=>{ document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); };
       document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onUp);
     });
   }
@@ -533,9 +516,9 @@
 
     const range=fabEl.querySelector('input[type="range"]');
     range.addEventListener('input',(e)=>{ const v=parseInt(e.target.value,10); img.style.width=v+'%'; updateFab(v); });
-    fabEl.querySelector('.p50').addEventListener('click',()=>{ img.style.width='50%'; updateFab(50); scheduleIdleSave(); });
-    fabEl.querySelector('.p75').addEventListener('click',()=>{ img.style.width='75%'; updateFab(75); scheduleIdleSave(); });
-    fabEl.querySelector('.p100').addEventListener('click',()=>{ img.style.width='100%'; updateFab(100); scheduleIdleSave(); });
+    fabEl.querySelector('.p50').addEventListener('click',()=>{ img.style.width='50%'; updateFab(50); });
+    fabEl.querySelector('.p75').addEventListener('click',()=>{ img.style.width='75%'; updateFab(75); });
+    fabEl.querySelector('.p100').addEventListener('click',()=>{ img.style.width='100%'; updateFab(100); });
   }
   function updateFab(pct){ const range=fabEl?.querySelector('input[type="range"]'); if(range) range.value=Math.max(10,Math.min(100,pct)); }
 
@@ -551,45 +534,13 @@
     key.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); build(); }});
   })();
 
-  // ===== 자동 저장 (유휴 1분 + 주기 5분) & 복원 =====
-  const DRAFT_KEY='blog_auto_draft_v1';
-  let idleTimer=null, periodicTimer=null;
-
-  function serializeDraft(){ return { v:3, ts:Date.now(), topic:(q?.value||'').trim(), html:res?.innerHTML||'', edit:!!editMode, globalFont: (res?.style?.fontSize||'100%').replace('%','')*1 || 100 }; }
-  function saveDraft(){ try{ const data=serializeDraft(); localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); }catch(e){ console.warn('autosave failed',e); } }
-  function scheduleIdleSave(){ if(idleTimer) clearTimeout(idleTimer); idleTimer=setTimeout(saveDraft, 60*1000); } // 유휴 1분
-  function startPeriodicSave(){ if(periodicTimer) clearInterval(periodicTimer); periodicTimer=setInterval(saveDraft, 5*60*1000); } // 5분 주기
-  function restoreDraft(){
-    try{
-      const raw=localStorage.getItem(DRAFT_KEY);
-      if(!raw){ enableExports(false); return; }
-      const data=JSON.parse(raw); if(!data||typeof data!=='object'){ enableExports(false); return; }
-      if(typeof data.topic==='string') q.value=data.topic;
-      if(typeof data.html==='string' && data.html.trim()){
-        res.innerHTML=data.html; attachResizeToImages();
-      } else {
-        res.innerHTML='<div class="placeholder">결과는 여기에 표시됩니다</div>';
-      }
-      if(data.edit){ if(!editMode) toggleEditMode(); }
-      const gf = Math.max(80, Math.min(180, Number(data.globalFont)||100));
-      res.style.fontSize=gf+'%'; $('#fontVal').textContent=gf+'%';
-      enableExports(true); if(!resultExists()) enableExports(false);
-    }catch(e){ console.warn('restore failed', e); enableExports(false); }
-  }
-  function bindAutoSaveEvents(){
-    if(q) q.addEventListener('input', scheduleIdleSave);
-    if(res) res.addEventListener('input', ()=>{ scheduleIdleSave(); enableExports(true); if(!resultExists()) enableExports(false); });
-    document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden') saveDraft(); });
-    window.addEventListener('beforeunload', saveDraft);
-    startPeriodicSave();
-  }
-
-  // ===== 시작 =====
+  // ===== 부팅 =====
+  const tabsEl=$('#tabs'); const helpersEl=$('#helpers');
   function init(){
     const cats=loadCategories(); categories=cats; catNames=Object.keys(categories);
-    if(catNames.length){ renderTabs(); } else { $('#tabs').innerHTML=''; $('#helpers').innerHTML='<div class="placeholder">주제 풀이 없습니다</div>'; }
-    restoreDraft(); bindAutoSaveEvents(); attachResizeToImages();
-    if(!resultExists()) enableExports(false);
+    if(catNames.length){ renderTabs(); } else { tabsEl.innerHTML=''; helpersEl.innerHTML='<div class="placeholder">주제 풀이 없습니다</div>'; }
+    attachResizeToImages();
+    enableExports(false);
   }
   document.addEventListener('DOMContentLoaded', init);
 </script>
