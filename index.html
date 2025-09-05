@@ -71,6 +71,10 @@
       background-size:200% 100%;animation:shine 3s linear infinite;
     }
     .test-indicator{position:fixed;top:10px;right:10px;background:#ff6b35;color:#fff;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:bold;z-index:1000;}
+
+    /* ▼▼ 추가: 수정 모드 시 시각 표시 */
+    .res.editing{ outline:2px dashed #9b87f5; box-shadow: inset 0 0 0 3px #f3f0ff; }
+    /* ▲▲ 추가 끝 */
   </style>
 </head>
 <body>
@@ -124,6 +128,14 @@
         <button class="helper" data-text="상급병실 특약이 실제 보장에 어떤 영향을 주는지 알려줘">상급병실 특약</button>
         <button class="helper" data-text="간병인 보험 주요 조건과 주의할 점만 모아줘">간병인 보험 포인트</button>
       </div>
+
+      <!-- ▼▼ 추가: 결과 영역 컨트롤 버튼 -->
+      <div class="helpers" id="exporters">
+        <button class="helper" id="toggleEdit">수정 모드</button>
+        <button class="helper" id="downloadHtml" disabled>HTML 저장</button>
+        <button class="helper" id="downloadPdf" disabled>PDF 저장</button>
+      </div>
+      <!-- ▲▲ 추가 끝 -->
 
       <div id="res" class="res"></div>
     </div>
@@ -216,6 +228,10 @@
     }
     return null;
   }
+
+  // ▼▼ 추가: 수정 모드 상태
+  let editMode = false;
+
   function renderHtmlIntoResult(html){
     const cleaned = decodeHtmlEntities(html);
     const embeddable = extractEmbeddable(cleaned);
@@ -224,6 +240,11 @@
     res.style.textAlign = 'left';
     res.style.display = 'block';
     res.style.minHeight = 'auto';
+    // 수정 모드 유지
+    res.contentEditable = editMode ? "true" : "false";
+    res.classList.toggle('editing', !!editMode);
+    // 결과가 생기면 다운로드 버튼 활성화
+    enableExports(true);
   }
 
   async function send(){
@@ -232,13 +253,22 @@
     loading(true);
     try{
       const r = await postJson(WEBHOOK_URL, { topic });
-      if(!r.ok){ res.textContent = `HTTP ${r.status}\n` + JSON.stringify(r.data,null,2); return; }
+      if(!r.ok){
+        res.textContent = `HTTP ${r.status}\n` + JSON.stringify(r.data,null,2);
+        enableExports(false);
+        return;
+      }
       const ans = r.data?.answer ?? r.data?.data ?? r.data?.raw ?? r.data ?? { ok:true };
       const html = pickHtmlPayload(r.data, typeof ans==='string' ? ans : '');
-      if (html){ renderHtmlIntoResult(html); return; }
+      if (html){
+        renderHtmlIntoResult(html);
+        return;
+      }
       res.textContent = (typeof ans==='string') ? ans : JSON.stringify(ans,null,2);
+      enableExports(true);
     }catch(e){
       res.textContent = 'Network error: ' + (e?.message || String(e));
+      enableExports(false);
     }finally{ loading(false); }
   }
   btn.addEventListener('click', send);
@@ -295,6 +325,64 @@
     btnCopy.addEventListener('click', copy);
     key.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); build(); }});
   })();
+
+  // ▼▼ 추가: 결과 저장/수정 모드 토글 기능
+  const dlHtmlBtn = document.getElementById('downloadHtml');
+  const dlPdfBtn  = document.getElementById('downloadPdf');
+  const toggleBtn = document.getElementById('toggleEdit');
+
+  function enableExports(on){
+    if(!dlHtmlBtn || !dlPdfBtn) return;
+    dlHtmlBtn.disabled = !on;
+    dlPdfBtn.disabled  = !on;
+  }
+
+  function currentResultHTML(){
+    // wrap to standalone HTML file with charset meta
+    const inner = res.innerHTML || '';
+    const doc = [
+      '<!DOCTYPE html>',
+      '<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>result</title></head><body>',
+      inner,
+      '</body></html>'
+    ].join('');
+    return doc;
+  }
+
+  function downloadHTMLFile(){
+    const content = currentResultHTML();
+    const blob = new Blob([content], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'result.html';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function downloadPDFFile(){
+    // open a print-only window; user selects "Save as PDF"
+    const content = currentResultHTML();
+    const w = window.open('', '_blank');
+    if(!w){ alert('Popup blocked. Please allow popups for this site.'); return; }
+    w.document.open();
+    w.document.write(content);
+    w.document.close();
+    w.focus();
+    // small delay ensures content is rendered before print
+    setTimeout(()=>{ w.print(); }, 150);
+  }
+
+  function toggleEditMode(){
+    editMode = !editMode; // keep JS strings in English only
+    res.contentEditable = editMode ? "true" : "false";
+    res.classList.toggle('editing', !!editMode);
+    toggleBtn.textContent = editMode ? '수정 종료' : '수정 모드';
+  }
+
+  if (dlHtmlBtn) dlHtmlBtn.addEventListener('click', downloadHTMLFile);
+  if (dlPdfBtn)  dlPdfBtn.addEventListener('click',  downloadPDFFile);
+  if (toggleBtn) toggleBtn.addEventListener('click', toggleEditMode);
+  // ▲▲ 추가 끝
 </script>
 </body>
 </html>
