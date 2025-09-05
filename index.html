@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>어메이징사업부 블로그 자동화</title>
   <style>
-    :root{ --bg1:#f8fbff; --bg2:#fff7fd; --ink:#111827; --ring:#9b87f5; --accent:#7c3aed; --accent2:#9b87f5; }
+    :root{
+      --bg1:#f8fbff; --bg2:#fff7fd; --ink:#111827; --ring:#9b87f5;
+      --accent:#7c3aed; --accent2:#9b87f5;
+    }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -57,8 +60,10 @@
     .send[disabled]{opacity:.65;cursor:not-allowed}
     .spin{width:16px;height:16px;border-radius:50%;border:2px solid #ffffff80;border-top-color:#fff;display:inline-block;animation:spin .8s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
+
     .helpers{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center}
     .helper{ font-size:12px;border:1px dashed #e5e7eb;background:#fff;border-radius:999px;padding:6px 10px;cursor:pointer; }
+
     .res{
       margin-top:14px;background:#fff;border:1px solid #eef2ff;border-radius:16px;padding:14px;min-height:130px;
       white-space:pre-wrap;line-height:1.6
@@ -95,8 +100,13 @@
     .chip-html{ background:linear-gradient(135deg,#14b8a6,#0ea5e9); }
     .chip-pdf { background:linear-gradient(135deg,#f43f5e,#fb7185); }
 
-    /* ▼▼ 새로 추가: 카테고리 탭 */
-    #tabs{ margin-top:10px; gap:6px; justify-content:flex-start; }
+    /* 카테고리 라벨 + 탭 (가운데 정렬) */
+    #catHeader{ display:flex; align-items:center; justify-content:center; gap:8px; margin-top:12px; }
+    #catBadge{
+      font-size:11px; font-weight:900; letter-spacing:.6px;
+      padding:4px 8px; border-radius:999px; color:#4c1d95; background:#ede9fe; border:1px solid #ddd6fe;
+    }
+    #tabs{ margin-top:6px; gap:6px; justify-content:center; }
     .tab{
       border:1px solid #e5e7eb; background:#fff; color:#374151;
       padding:8px 12px; border-radius:999px; font-size:12px; cursor:pointer;
@@ -108,9 +118,8 @@
       background:linear-gradient(135deg,#7c3aed,#22d3ee);
       box-shadow:0 8px 18px #7c3aed33, inset 0 -6px 12px #00000014;
     }
-    /* ▲▲ 탭 끝 */
 
-    /* ▼▼ 서식 툴바 */
+    /* 서식 툴바 */
     #toolbar{
       margin-top:12px; padding:10px; border:1px dashed #e5e7eb; border-radius:12px;
       background:linear-gradient(180deg,#ffffff,#fafbff);
@@ -132,11 +141,49 @@
     .t-h3{ background:linear-gradient(135deg,#10b981,#34d399); }
     .t-ul{ background:linear-gradient(135deg,#fb923c,#f59e0b); }
     .t-ol{ background:linear-gradient(135deg,#f97316,#ea580c); }
+    .t-left{ background:linear-gradient(135deg,#818cf8,#6366f1); }
+    .t-center{ background:linear-gradient(135deg,#a78bfa,#8b5cf6); }
+    .t-right{ background:linear-gradient(135deg,#c4b5fd,#a78bfa); }
     .t-link{ background:linear-gradient(135deg,#6366f1,#8b5cf6); }
     .t-color{ background:linear-gradient(135deg,#ef4444,#eab308,#22c55e,#3b82f6,#8b5cf6); color:#111827; font-weight:800; }
+    .tool-lite{
+      border:1px dashed #e5e7eb; background:#fff; color:#374151; box-shadow:none;
+    }
     .color-picker{ appearance:none; width:28px; height:28px; border-radius:8px; border:1px solid #e5e7eb; padding:0; }
     .color-picker::-webkit-color-swatch{ border:none; border-radius:8px; }
-    /* ▲▲ 서식 툴바 끝 */
+
+    /* 이미지 리사이즈 핸들 & 떠있는 패널 */
+    .img-selected{ outline:2px solid #7c3aed; outline-offset:2px; }
+    .img-handle{
+      position:absolute; width:12px; height:12px; border-radius:50%;
+      background:#7c3aed; box-shadow:0 2px 6px #00000033; cursor:nwse-resize;
+      right:-6px; bottom:-6px; z-index:2;
+    }
+    .img-fab{
+      position:absolute; transform:translate(-50%,-100%); left:50%; top:0;
+      background:#111827; color:#fff; padding:8px 10px; border-radius:12px;
+      box-shadow:0 10px 24px #00000033; display:flex; align-items:center; gap:8px; z-index:2;
+    }
+    .img-fab input[type="range"]{ width:120px; }
+    .img-fab button{ border:0; border-radius:999px; padding:6px 8px; cursor:pointer; font-weight:800; }
+    .img-fab .p50{ background:#fde68a; }
+    .img-fab .p75{ background:#a7f3d0; }
+    .img-fab .p100{ background:#bfdbfe; }
+
+    /* 스냅샷 박스 */
+    #snapBox{
+      margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; justify-content:center; align-items:center;
+    }
+    #snapBox select{ padding:8px 10px; border-radius:10px; border:1px solid #e5e7eb; background:#fff; }
+    #snapBox .btn{ padding:8px 12px; border-radius:999px; border:0; color:#fff; font-weight:700; cursor:pointer; }
+    #btnSnapSave{ background:linear-gradient(135deg,#0ea5e9,#6366f1); }
+    #btnSnapLoad{ background:linear-gradient(135deg,#22c55e,#16a34a); }
+    #btnSnapDel{  background:linear-gradient(135deg,#ef4444,#f97316); }
+
+    /* 본문 전체 글자 크기 컨트롤 */
+    #fontBox{ margin-top:8px; display:flex; justify-content:center; align-items:center; gap:8px; }
+    #fontBox .btn{ padding:6px 10px; border-radius:8px; border:1px dashed #e5e7eb; background:#fff; cursor:pointer; }
+    #fontBox .val{ font-weight:800; color:#334155; min-width:50px; text-align:center; }
   </style>
 </head>
 <body>
@@ -154,7 +201,7 @@
       <h1 class="title">어메이징사업부 블로그 자동화</h1>
     </div>
 
-    <!-- 카카오 채널 링크 생성기 -->
+    <!-- 카카오 링크 생성기 (원본 유지) -->
     <div class="card" id="chat-link-maker">
       <label style="display:block;font-size:14px;font-weight:800;margin-bottom:10px">카카오톡 블로그 채널링크 🔗</label>
       <div style="display:flex;gap:8px;align-items:center">
@@ -174,10 +221,11 @@
         <button id="send" class="send" type="button"><span id="sendLabel">Send</span> 🚀</button>
       </div>
 
-      <!-- ▼ 카테고리 탭 -->
+      <!-- 카테고리 라벨 + 탭 -->
+      <div id="catHeader"><span id="catBadge">카테고리</span></div>
       <div class="helpers" id="tabs"></div>
 
-      <!-- helpers: JS가 3개씩 랜더링 -->
+      <!-- helpers (3개 로테이션) -->
       <div class="helpers" id="helpers"></div>
 
       <!-- 분리선 + 컬러 버튼 3종 -->
@@ -187,7 +235,7 @@
         <button class="chip chip-pdf"  id="downloadPdf"  disabled>PDF 저장</button>
       </div>
 
-      <!-- ▼ 서식 툴바 -->
+      <!-- 서식 툴바 -->
       <div id="toolbar" class="helpers">
         <button class="tool t-bold"      data-cmd="bold">굵게</button>
         <button class="tool t-italic"    data-cmd="italic">기울임</button>
@@ -196,17 +244,35 @@
         <button class="tool t-h3"        data-cmd="formatBlock" data-val="H3">H3</button>
         <button class="tool t-ul"        data-cmd="insertUnorderedList">목록</button>
         <button class="tool t-ol"        data-cmd="insertOrderedList">번호</button>
+        <button class="tool t-left"      data-cmd="justifyLeft">왼쪽</button>
+        <button class="tool t-center"    data-cmd="justifyCenter">가운데</button>
+        <button class="tool t-right"     data-cmd="justifyRight">오른쪽</button>
         <button class="tool t-link"      id="mkLink">링크</button>
         <label class="tool t-color" style="gap:8px;">
           색상 <input type="color" id="foreColor" class="color-picker" value="#333333" title="텍스트 색상"/>
         </label>
       </div>
 
+      <!-- 스냅샷 + 전체 글씨크기 -->
+      <div id="snapBox" class="helpers">
+        <button class="btn" id="btnSnapSave">스냅샷 저장</button>
+        <select id="snapSelect" title="저장된 스냅샷"></select>
+        <button class="btn" id="btnSnapLoad">불러오기</button>
+        <button class="btn" id="btnSnapDel">삭제</button>
+      </div>
+      <div id="fontBox" class="helpers">
+        <button class="btn" id="fontDown">A-</button>
+        <span class="val" id="fontVal">100%</span>
+        <button class="btn" id="fontUp">A+</button>
+        <span class="placeholder">/ 선택 글자크기: </span>
+        <input type="range" id="selFont" min="70" max="200" value="100" style="width:140px" title="선택 영역 글자 크기"/>
+      </div>
+
       <div id="res" class="res"><div class="placeholder">결과는 여기에 표시됩니다</div></div>
     </div>
   </div>
 
-  <!-- ▼ 카테고리별 주제 30개씩 (샘플 큐레이션) -->
+  <!-- 카테고리별 주제 30개씩 (샘플) -->
   <script type="application/json" id="topic-categories">{
     "실손보험": [
       "실손보험 청구서류 체크리스트 2025","실손보험 청구 방법 앱·병원서류 정리","실손보험 통원비 영수증 누락 대처",
@@ -283,377 +349,340 @@
   }</script>
 
 <script>
-  // 테스트 모드
-  function isTestMode() {
-    return window.location.search.includes('test=true') || window.location.search.includes('debug=true');
-  }
-  const HOOKS_BASE = 'https://hooks.xn--h32b21du9cf7grcy2k20f.com';
-  const WF_PATH = 'ask';
-  const WEBHOOK_URL = isTestMode()
-    ? `${HOOKS_BASE}/webhook-test/${WF_PATH}`
-    : `${HOOKS_BASE}/webhook/${WF_PATH}`;
-
-  if (isTestMode()) {
-    const indicator = document.createElement('div');
-    indicator.className = 'test-indicator';
-    indicator.textContent = 'TEST MODE';
+  // ========== 공통 ==========
+  function isTestMode(){ return location.search.includes('test=true') || location.search.includes('debug=true'); }
+  const HOOKS_BASE='https://hooks.xn--h32b21du9cf7grcy2k20f.com';
+  const WF_PATH='ask';
+  const WEBHOOK_URL = isTestMode()?`${HOOKS_BASE}/webhook-test/${WF_PATH}`:`${HOOKS_BASE}/webhook/${WF_PATH}`;
+  if (isTestMode()){
+    const indicator=document.createElement('div'); indicator.className='test-indicator'; indicator.textContent='TEST MODE';
     document.body.appendChild(indicator);
-    console.log('Test mode: Editor live capture enabled');
-    console.log('Webhook URL:', WEBHOOK_URL);
   }
 
-  const $ = (s)=>document.querySelector(s);
-  const q = $('#q'), btn = $('#send'), res = $('#res'), sendLabel = $('#sendLabel');
+  const $=(s)=>document.querySelector(s);
+  const q=$('#q'), btn=$('#send'), res=$('#res'), sendLabel=$('#sendLabel');
 
   function loading(on){
-    if(on){
-      btn.disabled = true;
-      sendLabel.innerHTML = '<span class="spin"></span>';
-      res.innerHTML = '<div class="status"><span class="spin"></span>AI is working…</div>';
-    } else {
-      btn.disabled = false;
-      sendLabel.textContent = 'Send';
-    }
+    if(on){ btn.disabled=true; sendLabel.innerHTML='<span class="spin"></span>'; res.innerHTML='<div class="status"><span class="spin"></span>AI is working…</div>'; }
+    else { btn.disabled=false; sendLabel.textContent='Send'; }
   }
 
   async function postJson(url, body, timeoutMs=30000){
-    const controller = new AbortController();
-    const t = setTimeout(()=>controller.abort(), timeoutMs);
+    const controller=new AbortController(); const t=setTimeout(()=>controller.abort(), timeoutMs);
     try{
-      const r = await fetch(url,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body), signal:controller.signal });
-      const text = await r.text();
-      let data; try{ data = JSON.parse(text); } catch { data = { raw:text }; }
-      return { ok:r.ok, status:r.status, data };
+      const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:controller.signal});
+      const text=await r.text(); let data; try{data=JSON.parse(text);}catch{data={raw:text};}
+      return {ok:r.ok,status:r.status,data};
     } finally { clearTimeout(t); }
   }
 
-  function looksLikeHtml(s){
-    return /^\s*<(?:!DOCTYPE|html|body|main|div|section|article|h1|h2|p|iframe)\b/i.test(s || "");
-  }
-  function decodeHtmlEntities(str) {
-    if (typeof str !== 'string') return str;
-    const el = document.createElement("textarea");
-    el.innerHTML = str;
-    return el.value;
-  }
+  function looksLikeHtml(s){ return /^\s*<(?:!DOCTYPE|html|body|main|div|section|article|h1|h2|p|iframe)\b/i.test(s||""); }
+  function decodeHtmlEntities(str){ if(typeof str!=='string') return str; const el=document.createElement('textarea'); el.innerHTML=str; return el.value; }
   function extractEmbeddable(htmlString){
-    try {
-      const s = String(htmlString || "");
-      const m = s.match(/^\s*<iframe\b[^>]*\bsrcdoc=(["'])([\s\S]*?)\1[^>]*>\s*<\/iframe>\s*$/i);
-      if (m) {
-        const ta = document.createElement("textarea");
-        ta.innerHTML = m[2];
-        return ta.value;
-      }
-      if (/^\s*<iframe\b/i.test(s)) return s;
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(s, "text/html");
-      const main = doc.querySelector("main");
-      if (main) return main.innerHTML;
-      if (doc.body) return doc.body.innerHTML || s;
+    try{
+      const s=String(htmlString||"");
+      const m=s.match(/^\s*<iframe\b[^>]*\bsrcdoc=(["'])([\s\S]*?)\1[^>]*>\s*<\/iframe>\s*$/i);
+      if(m){ const ta=document.createElement('textarea'); ta.innerHTML=m[2]; return ta.value; }
+      if(/^\s*<iframe\b/i.test(s)) return s;
+      const parser=new DOMParser(); const doc=parser.parseFromString(s,'text/html');
+      const main=doc.querySelector('main'); if(main) return main.innerHTML;
+      if(doc.body) return doc.body.innerHTML || s;
       return s;
-    } catch {
-      return htmlString;
-    }
+    }catch{ return htmlString; }
   }
   function pickHtmlPayload(data, fallback){
-    const candidates = [
-      data?.html_document, data?.html, data?.content, data?.body,
-      data?.answer?.html_document, data?.answer?.html,
-      data?.data?.html_document, data?.data?.html,
-      data?.json?.html_document, data?.json?.html, fallback
-    ].filter(v => typeof v === 'string');
-
-    for (let raw of candidates){
-      const dec = /&lt;|&gt;|&amp;|&quot;|&#39;/.test(raw) ? decodeHtmlEntities(raw) : raw;
-      if (looksLikeHtml(dec)) return dec;
-    }
+    const candidates=[data?.html_document,data?.html,data?.content,data?.body,data?.answer?.html_document,data?.answer?.html,data?.data?.html_document,data?.data?.html,data?.json?.html_document,data?.json?.html,fallback].filter(v=>typeof v==='string');
+    for(let raw of candidates){ const dec=/&lt;|&gt;|&amp;|&quot;|&#39;/.test(raw)?decodeHtmlEntities(raw):raw; if(looksLikeHtml(dec)) return dec; }
     return null;
   }
 
-  // ====== 수정 모드 & 내보내기 ======
-  let editMode = false;
-  const dlHtmlBtn = document.getElementById('downloadHtml');
-  const dlPdfBtn  = document.getElementById('downloadPdf');
-  const toggleBtn = document.getElementById('toggleEdit');
-  const toolbar   = document.getElementById('toolbar');
+  // ===== 수정 모드 & 내보내기 =====
+  let editMode=false;
+  const dlHtmlBtn=$('#downloadHtml'), dlPdfBtn=$('#downloadPdf'), toggleBtn=$('#toggleEdit'), toolbar=$('#toolbar');
 
-  function enableExports(on){
-    if(dlHtmlBtn) dlHtmlBtn.disabled = !on;
-    if(dlPdfBtn)  dlPdfBtn.disabled  = !on;
-  }
+  function enableExports(on){ if(dlHtmlBtn) dlHtmlBtn.disabled=!on; if(dlPdfBtn) dlPdfBtn.disabled=!on; }
   function currentResultHTML(){
-    const inner = res.innerHTML || '';
-    const doc = [
-      '<!DOCTYPE html>',
-      '<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>result</title></head><body>',
-      inner,
-      '</body></html>'
-    ].join('');
-    return doc;
+    const inner=res.innerHTML||'';
+    return '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>result</title></head><body>'+inner+'</body></html>';
   }
   function downloadHTMLFile(){
-    const content = currentResultHTML();
-    const blob = new Blob([content], { type: 'text/html;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'result.html';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const blob=new Blob([currentResultHTML()],{type:'text/html;charset=utf-8'});
+    const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='result.html'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
   }
   function downloadPDFFile(){
-    const content = currentResultHTML();
-    const w = window.open('', '_blank');
-    if(!w){ alert('팝업을 허용해주세요.'); return; }
-    w.document.open();
-    w.document.write(content);
-    w.document.close();
-    w.focus();
-    setTimeout(()=>{ w.print(); }, 150);
+    const w=window.open('','_blank'); if(!w){ alert('팝업을 허용해주세요.'); return; }
+    w.document.open(); w.document.write(currentResultHTML()); w.document.close(); w.focus(); setTimeout(()=>w.print(),150);
   }
   function toggleEditMode(){
-    editMode = !editMode;
-    res.contentEditable = editMode ? "true" : "false";
-    res.classList.toggle('editing', !!editMode);
-    const onLabel  = toggleBtn.getAttribute('data-on')  || '수정 종료';
-    const offLabel = toggleBtn.getAttribute('data-off') || '수정 모드';
-    toggleBtn.textContent = editMode ? onLabel : offLabel;
-    // 툴바 활성/비활성
-    [...toolbar.querySelectorAll('.tool,.color-picker')].forEach(el => el.disabled = !editMode);
+    editMode=!editMode;
+    res.contentEditable=editMode?"true":"false";
+    res.classList.toggle('editing',!!editMode);
+    const onLabel=toggleBtn.getAttribute('data-on')||'수정 종료';
+    const offLabel=toggleBtn.getAttribute('data-off')||'수정 모드';
+    toggleBtn.textContent=editMode?onLabel:offLabel;
+    [...toolbar.querySelectorAll('.tool,.color-picker')].forEach(el=>el.disabled=!editMode);
   }
-  if (dlHtmlBtn) dlHtmlBtn.addEventListener('click', downloadHTMLFile);
-  if (dlPdfBtn)  dlPdfBtn.addEventListener('click',  downloadPDFFile);
-  if (toggleBtn) toggleBtn.addEventListener('click', toggleEditMode);
-  // 초기엔 툴바 비활성
-  [...toolbar.querySelectorAll('.tool,.color-picker')].forEach(el => el.disabled = true);
+  if(dlHtmlBtn) dlHtmlBtn.addEventListener('click', downloadHTMLFile);
+  if(dlPdfBtn) dlPdfBtn.addEventListener('click', downloadPDFFile);
+  if(toggleBtn) toggleBtn.addEventListener('click', toggleEditMode);
+  [...toolbar.querySelectorAll('.tool,.color-picker')].forEach(el=>el.disabled=true);
 
-  // ====== 전송 ======
+  // ===== 전송 =====
   async function send(){
-    const topic = q.value.trim();
-    if(topic.length < 2){ q.focus(); res.textContent='Please enter at least 2 characters.'; return; }
+    const topic=q.value.trim(); if(topic.length<2){ q.focus(); res.textContent='Please enter at least 2 characters.'; return; }
     loading(true);
     try{
-      const r = await postJson(WEBHOOK_URL, { topic });
-      if(!r.ok){
-        res.textContent = `HTTP ${r.status}\n` + JSON.stringify(r.data,null,2);
-        enableExports(false);
+      const r=await postJson(WEBHOOK_URL,{topic});
+      if(!r.ok){ res.textContent=`HTTP ${r.status}\n`+JSON.stringify(r.data,null,2); enableExports(false); return; }
+      const ans=r.data?.answer ?? r.data?.data ?? r.data?.raw ?? r.data ?? {ok:true};
+      const html=pickHtmlPayload(r.data, typeof ans==='string'?ans:'');
+      if(html){
+        const cleaned=decodeHtmlEntities(html); const emb=extractEmbeddable(cleaned);
+        res.innerHTML=emb; res.style.whiteSpace='normal'; res.style.textAlign='left'; res.style.display='block'; res.style.minHeight='auto';
+        res.contentEditable=editMode?"true":"false"; res.classList.toggle('editing',!!editMode);
+        enableExports(true); attachResizeToImages(); scheduleIdleSave(); // 결과 갱신 시 저장 예약
         return;
       }
-      const ans = r.data?.answer ?? r.data?.data ?? r.data?.raw ?? r.data ?? { ok:true };
-      const html = pickHtmlPayload(r.data, typeof ans==='string' ? ans : '');
-      if (html){
-        const cleaned = decodeHtmlEntities(html);
-        const embeddable = extractEmbeddable(cleaned);
-        res.innerHTML = embeddable;
-        res.style.whiteSpace = 'normal';
-        res.style.textAlign = 'left';
-        res.style.display = 'block';
-        res.style.minHeight = 'auto';
-        res.contentEditable = editMode ? "true" : "false";
-        res.classList.toggle('editing', !!editMode);
-        enableExports(true);
-        return;
-      }
-      res.textContent = (typeof ans==='string') ? ans : JSON.stringify(ans,null,2);
-      enableExports(true);
+      res.textContent=(typeof ans==='string')?ans:JSON.stringify(ans,null,2);
+      enableExports(true); scheduleIdleSave();
     }catch(e){
-      res.textContent = 'Network error: ' + (e?.message || String(e));
+      res.textContent='Network error: '+(e?.message||String(e));
       enableExports(false);
     }finally{ loading(false); }
   }
-  document.getElementById('send').addEventListener('click', send);
-  document.getElementById('q').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); send(); }});
+  btn.addEventListener('click', send);
+  q.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); send(); }});
 
-  // ====== 카테고리 탭 + 3개 로테이션 ======
-  const tabsEl = document.getElementById('tabs');
-  const helpersEl = document.getElementById('helpers');
-  const ROTATE_MS = 12000;
-  let categories = {};
-  let catNames = [];
-  let currentCat = null;
-  let order = [];
-  let cursor = 0;
-  let rotateTimer = null;
+  // ===== 카테고리 탭 + 3개 로테이션 =====
+  const tabsEl=$('#tabs'), helpersEl=$('#helpers'); const ROTATE_MS=12000;
+  let categories={}, catNames=[], currentCat=null, order=[], cursor=0, rotateTimer=null;
 
-  function loadCategories(){
-    try{
-      const raw = document.getElementById('topic-categories')?.textContent || '{}';
-      const obj = JSON.parse(raw);
-      return obj && typeof obj === 'object' ? obj : {};
-    }catch{ return {}; }
-  }
-  function shuffle(a){
-    const x = a.slice();
-    for(let i=x.length-1;i>0;i--){
-      const j = Math.floor(Math.random()*(i+1));
-      [x[i],x[j]] = [x[j],x[i]];
-    }
-    return x;
-  }
+  function loadCategories(){ try{ const raw=$('#topic-categories')?.textContent||'{}'; const obj=JSON.parse(raw); return obj&&typeof obj==='object'?obj:{}; }catch{ return {}; } }
+  function shuffle(a){ const x=a.slice(); for(let i=x.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [x[i],x[j]]=[x[j],x[i]]; } return x; }
   function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function escAttr(s){ return escHtml(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
   function renderTabs(){
-    tabsEl.innerHTML = catNames.map((c,i)=>`<button class="tab ${i===0?'active':''}" data-cat="${escAttr(c)}">${escHtml(c)}</button>`).join('');
-    currentCat = catNames[0] || null;
-    resetRotation();
+    tabsEl.innerHTML=catNames.map((c,i)=>`<button class="tab ${i===0?'active':''}" data-cat="${escAttr(c)}">${escHtml(c)}</button>`).join('');
+    currentCat=catNames[0]||null; resetRotation();
   }
   function resetRotation(){
-    const pool = (categories[currentCat]||[]);
-    order = shuffle(pool.map((_,i)=>i));
-    cursor = 0;
-    renderHelpers();
-    if(rotateTimer) clearInterval(rotateTimer);
-    rotateTimer = setInterval(renderHelpers, ROTATE_MS);
+    const pool=(categories[currentCat]||[]); order=shuffle(pool.map((_,i)=>i)); cursor=0; renderHelpers();
+    if(rotateTimer) clearInterval(rotateTimer); rotateTimer=setInterval(renderHelpers, ROTATE_MS);
   }
   function nextSet(n=3){
-    const pool = (categories[currentCat]||[]);
-    if (pool.length===0) return [];
-    if(cursor >= order.length){ order = shuffle(order); cursor = 0; }
-    const idxs = order.slice(cursor, cursor+n);
-    cursor += n;
-    return idxs.map(i => pool[i]);
+    const pool=(categories[currentCat]||[]); if(pool.length===0) return [];
+    if(cursor>=order.length){ order=shuffle(order); cursor=0; }
+    const idxs=order.slice(cursor, cursor+n); cursor+=n; return idxs.map(i=>pool[i]);
   }
-  function renderHelpers(){
-    const items = nextSet(3);
-    helpersEl.innerHTML = items.map(t => `<button class="helper" data-text="${escAttr(t)}">${escHtml(t)}</button>`).join('');
-  }
-  tabsEl.addEventListener('click', (e)=>{
-    const tab = e.target.closest('.tab'); if(!tab) return;
-    tabsEl.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-    tab.classList.add('active');
-    currentCat = tab.getAttribute('data-cat');
-    resetRotation();
-  });
-  if (helpersEl){
-    helpersEl.addEventListener('click', (e)=>{
-      const btnEl = e.target.closest('.helper');
-      if(!btnEl) return;
-      const text = btnEl.getAttribute('data-text') || btnEl.textContent || '';
-      document.getElementById('q').value = text; // 입력만, 자동 전송 없음
-    });
-  }
+  function renderHelpers(){ const items=nextSet(3); helpersEl.innerHTML=items.map(t=>`<button class="helper" data-text="${escAttr(t)}">${escHtml(t)}</button>`).join(''); }
+  tabsEl.addEventListener('click',(e)=>{ const tab=e.target.closest('.tab'); if(!tab) return; tabsEl.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); tab.classList.add('active'); currentCat=tab.getAttribute('data-cat'); resetRotation(); });
+  if(helpersEl){ helpersEl.addEventListener('click',(e)=>{ const b=e.target.closest('.helper'); if(!b) return; q.value=b.getAttribute('data-text')||b.textContent||''; }); }
 
-  // ====== 서식 툴바 동작 ======
-  function applyCmd(cmd, val=null){
-    if(!editMode){ toggleEditMode(); } // 편집 켜기
-    document.execCommand(cmd, false, val);
-    res.focus();
-  }
-  toolbar.addEventListener('click', (e)=>{
-    const b = e.target.closest('.tool'); if(!b) return;
-    if (b.id === 'mkLink'){
-      const url = prompt('링크 URL을 입력하세요');
-      if(url && /^https?:\/\//i.test(url)){ applyCmd('createLink', url); }
-      return;
-    }
-    const cmd = b.getAttribute('data-cmd');
-    const val = b.getAttribute('data-val');
-    if(cmd) applyCmd(cmd, val);
+  // ===== 서식 툴바 =====
+  function applyCmd(cmd,val=null){ if(!editMode) toggleEditMode(); document.execCommand(cmd,false,val); res.focus(); scheduleIdleSave(); }
+  $('#toolbar').addEventListener('click',(e)=>{
+    const b=e.target.closest('.tool'); if(!b) return;
+    if(b.id==='mkLink'){ const url=prompt('링크 URL을 입력하세요'); if(url && /^https?:\/\//i.test(url)) applyCmd('createLink',url); return; }
+    const cmd=b.getAttribute('data-cmd'); const val=b.getAttribute('data-val'); if(cmd) applyCmd(cmd,val);
   });
-  document.getElementById('foreColor').addEventListener('input', (e)=>{
-    applyCmd('foreColor', e.target.value);
+  $('#foreColor').addEventListener('input',(e)=>{ applyCmd('foreColor', e.target.value); });
+
+  // ===== 전체 글씨 크기(A-/A+) & 선택 글자크기 슬라이더 =====
+  let globalFont=100;
+  function applyGlobalFont(){ res.style.fontSize=globalFont+'%'; $('#fontVal').textContent=globalFont+'%'; scheduleIdleSave(); }
+  $('#fontDown').addEventListener('click',()=>{ globalFont=Math.max(70, globalFont-10); applyGlobalFont(); });
+  $('#fontUp').addEventListener('click',()=>{ globalFont=Math.min(200, globalFont+10); applyGlobalFont(); });
+
+  $('#selFont').addEventListener('input',(e)=>{
+    const size=parseInt(e.target.value,10);
+    if(!editMode) toggleEditMode();
+    const sel=window.getSelection();
+    if(!sel || sel.rangeCount===0) return;
+    const range=sel.getRangeAt(0);
+    const span=document.createElement('span'); span.style.fontSize=size+'%';
+    range.surroundContents(span);
+    sel.removeAllRanges(); const r=document.createRange(); r.selectNodeContents(span); sel.addRange(r);
+    scheduleIdleSave();
   });
 
-  // ====== 이미지 드래그&드롭/붙여넣기 ======
+  // ===== 이미지 드래그&드롭/붙여넣기 + 리사이즈 =====
   function insertAtCaret(node){
-    const sel = window.getSelection();
-    if (sel && sel.rangeCount && res.contains(sel.anchorNode)){
-      const range = sel.getRangeAt(0);
-      range.deleteContents();
-      range.insertNode(node);
-      range.collapse(false);
-      sel.removeAllRanges();
-      sel.addRange(range);
-    } else {
-      res.appendChild(node);
-    }
+    const sel=window.getSelection();
+    if(sel && sel.rangeCount && res.contains(sel.anchorNode)){
+      const range=sel.getRangeAt(0); range.deleteContents(); range.insertNode(node); range.collapse(false); sel.removeAllRanges(); sel.addRange(range);
+    } else { res.appendChild(node); }
   }
   function handleFiles(files){
-    if(!files || files.length===0) return;
-    if(!editMode) toggleEditMode(); // 자동으로 편집 모드 켜기
+    if(!files || !files.length) return;
+    if(!editMode) toggleEditMode();
     [...files].forEach(file=>{
       if(!file.type.startsWith('image/')) return;
-      const reader = new FileReader();
-      reader.onload = ()=> {
-        const img = new Image();
-        img.src = reader.result;
-        img.style.maxWidth = '100%';
-        img.style.height = 'auto';
-        img.style.display = 'block';
-        img.style.margin = '8px 0';
-        insertAtCaret(img);
+      const reader=new FileReader();
+      reader.onload=()=>{
+        const img=new Image(); img.src=reader.result; img.style.maxWidth='100%'; img.style.height='auto'; img.style.display='block'; img.style.margin='8px 0';
+        insertAtCaret(img); attachResizeToImage(img); scheduleIdleSave();
       };
       reader.readAsDataURL(file);
     });
   }
   res.addEventListener('dragover', (e)=>{ e.preventDefault(); res.classList.add('editing'); });
   res.addEventListener('dragleave', ()=>{ res.classList.toggle('editing', !!editMode); });
-  res.addEventListener('drop', (e)=>{
-    e.preventDefault();
-    handleFiles(e.dataTransfer.files);
-    res.classList.toggle('editing', !!editMode);
-  });
+  res.addEventListener('drop', (e)=>{ e.preventDefault(); handleFiles(e.dataTransfer.files); res.classList.toggle('editing', !!editMode); });
   res.addEventListener('paste', (e)=>{
-    const items = e.clipboardData && e.clipboardData.items;
-    if(!items) return;
-    const imgs = [];
-    for (const it of items){
-      if (it.type && it.type.indexOf('image/') === 0){
-        imgs.push(it.getAsFile());
-      }
-    }
+    const items=e.clipboardData && e.clipboardData.items; if(!items) return;
+    const imgs=[]; for(const it of items){ if(it.type && it.type.indexOf('image/')===0) imgs.push(it.getAsFile()); }
     if(imgs.length){ e.preventDefault(); handleFiles(imgs); }
   });
 
-  // ====== 카카오 링크 생성기(원본 유지) ======
-  (function(){
-    const BASE = 'https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook/kakao-redirect';
-    const key = document.getElementById('k-key');
-    const btnMake = document.getElementById('k-make');
-    const btnCopy = document.getElementById('k-copy');
-    const out = document.getElementById('k-result');
+  // 이미지 리사이즈: 클릭 시 핸들 + 패널
+  let currentImg=null, handleEl=null, fabEl=null, startX=0, startW=0;
+  function attachResizeToImages(){ res.querySelectorAll('img').forEach(attachResizeToImage); }
+  function attachResizeToImage(img){
+    img.style.cursor='pointer';
+    img.addEventListener('click', (e)=>{ e.stopPropagation(); selectImage(img); });
+  }
+  function selectImage(img){
+    if(currentImg===img){ showFab(img); return; }
+    clearImageUI();
+    currentImg=img; img.classList.add('img-selected'); showHandle(img); showFab(img);
+  }
+  function clearImageUI(){
+    if(currentImg) currentImg.classList.remove('img-selected');
+    if(handleEl){ handleEl.remove(); handleEl=null; }
+    if(fabEl){ fabEl.remove(); fabEl=null; }
+    currentImg=null;
+  }
+  document.addEventListener('click',(e)=>{ if(!res.contains(e.target)) clearImageUI(); });
 
-    function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,10); }
-    function build(){
-      const kw = (key.value || '').trim();
-      if(!kw){ out.textContent = '키워드를 입력하세요'; out.classList.add('placeholder'); return; }
-      const u = uid();
-      const qs = new URLSearchParams({ ref: kw, utm_content: u }).toString();
-      const url = BASE + (BASE.includes('?') ? '&' : '?') + qs;
-      out.innerHTML = `<a href="${url}" target="_blank" rel="noopener">${url}</a>`;
-      out.classList.remove('placeholder');
-    }
-    async function copy(){
-      const a = out.querySelector('a');
-      const url = a ? a.href : (out.textContent || '').trim();
-      if(!/^https?:\/\//.test(url)){ out.textContent = '먼저 링크를 생성하세요'; out.classList.add('placeholder'); return; }
-      try{
-        await navigator.clipboard.writeText(url);
-        btnCopy.textContent = '복사 완료 ✅';
-        setTimeout(()=>{ btnCopy.textContent = '복사 📋'; }, 1200);
-      }catch{
-        const t = document.createElement('textarea');
-        t.value = url; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t);
-        btnCopy.textContent = '복사 완료 ✅';
-        setTimeout(()=>{ btnCopy.textContent = '복사 📋'; }, 1200);
-      }
-    }
-    if (btnMake) btnMake.addEventListener('click', build);
-    if (btnCopy) btnCopy.addEventListener('click', copy);
-    if (key) key.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); build(); }});
+  function showHandle(img){
+    const rect=img.getBoundingClientRect();
+    handleEl=document.createElement('div'); handleEl.className='img-handle';
+    // 핸들은 이미지의 offsetParent 기준 위치가 필요 → wrapper 없이 position:relative 대체
+    img.style.position='relative';
+    img.parentElement.style.position='relative';
+    img.parentElement.appendChild(handleEl);
+
+    handleEl.addEventListener('mousedown',(e)=>{
+      e.preventDefault();
+      startX=e.clientX; startW=img.getBoundingClientRect().width;
+      const onMove=(me)=>{
+        const dx=me.clientX-startX;
+        const newW=Math.max(50, startW+dx);
+        const parentW=img.parentElement.getBoundingClientRect().width||newW;
+        const pct=Math.round((newW/parentW)*100);
+        img.style.width=pct+'%'; img.style.maxWidth='100%';
+        updateFab(pct);
+      };
+      const onUp=()=>{ document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); scheduleIdleSave(); };
+      document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onUp);
+    });
+  }
+  function showFab(img){
+    if(fabEl) fabEl.remove();
+    fabEl=document.createElement('div'); fabEl.className='img-fab';
+    const parentW=img.parentElement.getBoundingClientRect().width||img.width;
+    const curPct=Math.round((img.getBoundingClientRect().width/parentW)*100)||100;
+    fabEl.innerHTML=`
+      <input type="range" min="10" max="100" value="${Math.max(10, Math.min(100, curPct))}">
+      <button class="p50">50%</button>
+      <button class="p75">75%</button>
+      <button class="p100">100%</button>
+    `;
+    // 위치: 이미지 상단 중앙
+    img.parentElement.style.position='relative';
+    img.parentElement.appendChild(fabEl);
+
+    const range=fabEl.querySelector('input[type="range"]');
+    range.addEventListener('input',(e)=>{ const v=parseInt(e.target.value,10); img.style.width=v+'%'; updateFab(v); });
+    fabEl.querySelector('.p50').addEventListener('click',()=>{ img.style.width='50%'; updateFab(50); scheduleIdleSave(); });
+    fabEl.querySelector('.p75').addEventListener('click',()=>{ img.style.width='75%'; updateFab(75); scheduleIdleSave(); });
+    fabEl.querySelector('.p100').addEventListener('click',()=>{ img.style.width='100%'; updateFab(100); scheduleIdleSave(); });
+  }
+  function updateFab(pct){
+    if(!fabEl) return;
+    const range=fabEl.querySelector('input[type="range"]');
+    if(range) range.value=Math.max(10,Math.min(100, pct));
+  }
+
+  // ===== 카카오 링크 생성기 (원본 유지) =====
+  (function(){
+    const BASE='https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook/kakao-redirect';
+    const key=$('#k-key'); const btnMake=$('#k-make'); const btnCopy=$('#k-copy'); const out=$('#k-result');
+    function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,10); }
+    function build(){ const kw=(key.value||'').trim(); if(!kw){ out.textContent='키워드를 입력하세요'; out.classList.add('placeholder'); return; } const u=uid(); const qs=new URLSearchParams({ref:kw,utm_content:u}).toString(); const url=BASE+(BASE.includes('?')?'&':'?')+qs; out.innerHTML=`<a href="${url}" target="_blank" rel="noopener">${url}</a>`; out.classList.remove('placeholder'); }
+    async function copy(){ const a=out.querySelector('a'); const url=a?a.href:(out.textContent||'').trim(); if(!/^https?:\/\//.test(url)){ out.textContent='먼저 링크를 생성하세요'; out.classList.add('placeholder'); return; } try{ await navigator.clipboard.writeText(url); btnCopy.textContent='복사 완료 ✅'; setTimeout(()=>btnCopy.textContent='복사 📋',1200);}catch{ const t=document.createElement('textarea'); t.value=url; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); btnCopy.textContent='복사 완료 ✅'; setTimeout(()=>btnCopy.textContent='복사 📋',1200);} }
+    if(btnMake) btnMake.addEventListener('click', build);
+    if(btnCopy) btnCopy.addEventListener('click', copy);
+    if(key) key.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); build(); }});
   })();
 
-  // ====== 부팅 ======
+  // ===== 자동 저장 (유휴 1분 + 주기 5분) & 복원 =====
+  const DRAFT_KEY='blog_auto_draft_v1';
+  let idleTimer=null, periodicTimer=null;
+
+  function serializeDraft(){ return { v:3, ts:Date.now(), topic:(q?.value||'').trim(), html:res?.innerHTML||'', edit:!!editMode, globalFont }; }
+  function saveDraft(){ try{ const data=serializeDraft(); localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); /*console.log('saved', new Date(data.ts))*/ }catch(e){ console.warn('autosave failed',e); } }
+  function scheduleIdleSave(){ if(idleTimer) clearTimeout(idleTimer); idleTimer=setTimeout(saveDraft, 60*1000); } // 1분 유휴
+  function startPeriodicSave(){ if(periodicTimer) clearInterval(periodicTimer); periodicTimer=setInterval(saveDraft, 5*60*1000); } // 5분 주기
+  function restoreDraft(){
+    try{
+      const raw=localStorage.getItem(DRAFT_KEY); if(!raw) return;
+      const data=JSON.parse(raw); if(!data||typeof data!=='object') return;
+      if(typeof data.topic==='string') q.value=data.topic;
+      if(typeof data.html==='string'){ res.innerHTML=data.html; enableExports(true); attachResizeToImages(); }
+      if(data.edit){ if(!editMode) toggleEditMode(); }
+      if(data.globalFont){ globalFont=data.globalFont; res.style.fontSize=globalFont+'%'; $('#fontVal').textContent=globalFont+'%'; }
+    }catch(e){ console.warn('restore failed', e); }
+  }
+  function bindAutoSaveEvents(){
+    if(q) q.addEventListener('input', scheduleIdleSave);
+    if(res) res.addEventListener('input', scheduleIdleSave);
+    document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden') saveDraft(); });
+    window.addEventListener('beforeunload', saveDraft);
+    startPeriodicSave();
+  }
+
+  // ===== 스냅샷(히스토리) =====
+  const SNAP_KEY='blog_snapshots_v1'; const snapSelect=$('#snapSelect');
+  function loadSnaps(){ try{ const raw=localStorage.getItem(SNAP_KEY); const arr=raw?JSON.parse(raw):[]; return Array.isArray(arr)?arr:[]; }catch{return [];} }
+  function saveSnaps(arr){ localStorage.setItem(SNAP_KEY, JSON.stringify(arr)); }
+  function refreshSnapSelect(){
+    const arr=loadSnaps();
+    snapSelect.innerHTML=arr.map((s,i)=>`<option value="${i}">${new Date(s.ts).toLocaleString()} — ${s.topic?.slice(0,24)||'제목없음'}</option>`).join('');
+  }
+  function snapNow(){
+    const arr=loadSnaps();
+    const data=serializeDraft();
+    arr.unshift(data);
+    if(arr.length>10) arr.length=10; // 최대 10개 유지
+    saveSnaps(arr); refreshSnapSelect();
+  }
+  function loadSnap(){
+    const arr=loadSnaps(); const idx=parseInt(snapSelect.value||'0',10);
+    const s=arr[idx]; if(!s) return;
+    q.value=s.topic||''; res.innerHTML=s.html||''; enableExports(true); attachResizeToImages();
+    if(!!s.edit && !editMode) toggleEditMode(); if(!s.edit && editMode) toggleEditMode();
+    globalFont=s.globalFont||100; res.style.fontSize=globalFont+'%'; $('#fontVal').textContent=globalFont+'%';
+    scheduleIdleSave();
+  }
+  function delSnap(){
+    const arr=loadSnaps(); const idx=parseInt(snapSelect.value||'0',10);
+    if(arr[idx]){ arr.splice(idx,1); saveSnaps(arr); refreshSnapSelect(); }
+  }
+  $('#btnSnapSave').addEventListener('click', snapNow);
+  $('#btnSnapLoad').addEventListener('click', loadSnap);
+  $('#btnSnapDel').addEventListener('click', delSnap);
+
+  // ===== 부팅 =====
   function init(){
-    categories = loadCategories();
-    catNames = Object.keys(categories);
-    if (catNames.length === 0){
-      tabsEl.innerHTML = '';
-      helpersEl.innerHTML = '<div class="placeholder">주제 풀이 없습니다</div>';
-      return;
-    }
-    renderTabs();
+    // 카테고리
+    categories=loadCategories(); catNames=Object.keys(categories);
+    if(catNames.length){ renderTabs(); } else { $('#tabs').innerHTML=''; $('#helpers').innerHTML='<div class="placeholder">주제 풀이 없습니다</div>'; }
+    // 복원 & 오토세이브
+    restoreDraft(); bindAutoSaveEvents(); refreshSnapSelect();
+    // 초기 이미지에 리사이즈 부착(있다면)
+    attachResizeToImages();
   }
   document.addEventListener('DOMContentLoaded', init);
 </script>
