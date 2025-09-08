@@ -77,7 +77,7 @@
     .test-indicator{position:fixed;top:10px;right:10px;background:#ff6b35;color:#fff;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:bold;z-index:1000;}
     .res.editing{ outline:2px dashed #9b87f5; box-shadow: inset 0 0 0 3px #f3f0ff; }
 
-    /* exporters 분리선 & 버튼 */
+    /* exporters */
     #exporters{ border-top:1px dashed #e5e7eb; margin-top:12px; padding-top:12px; position:relative; }
     #exporters::before{ content:""; position:absolute;left:0;right:0;top:-1px;height:1px;
       background:linear-gradient(90deg,#ffffff00,#e5e7eb,#ffffff00); }
@@ -91,7 +91,7 @@
     .chip-html{ background:linear-gradient(135deg,#14b8a6,#0ea5e9); }
     .chip-pdf { background:linear-gradient(135deg,#f43f5e,#fb7185); }
 
-    /* 카테고리: 라벨 + 세그먼트 탭 (밑줄 제거) */
+    /* 카테고리 */
     #catHeader{ display:flex; align-items:center; justify-content:center; gap:10px; margin-top:14px; }
     #catBadge{
       font-size:12px; font-weight:900; letter-spacing:.6px;
@@ -117,7 +117,7 @@
       box-shadow:0 10px 20px #7c3aed33;
     }
 
-    /* 도구 패널(접기/펼치기) */
+    /* 도구 패널 */
     #toolsWrap{ margin-top:12px; }
     #toolsToggle{
       width:100%; border:1px dashed #e5e7eb; background:#fff; color:#334155;
@@ -193,10 +193,10 @@
       <div class="sticker" aria-hidden="true">
         <svg viewBox="0 0 80 80" width="58" height="58">
           <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#fef3c7"/><stop offset="1" stop-color="#fde68a"/></linearGradient></defs>
-          <circle cx="40" cy="40" r="28" fill="url(#g)" stroke="#fbbf24" stroke-width="2"/>
-          <circle cx="32" cy="35" r="4" fill="#1f2937"/><circle cx="48" cy="35" r="4" fill="#1f2937"/>
-          <path d="M28 49 Q40 58 52 49" stroke="#1f2937" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <path d="M18 26 26 18 M54 18 62 26" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="40" cy="40" r="28" fill="url(#g)" stroke="#fbbf24" stroke-width="2"/>
+        <circle cx="32" cy="35" r="4" fill="#1f2937"/><circle cx="48" cy="35" r="4" fill="#1f2937"/>
+        <path d="M28 49 Q40 58 52 49" stroke="#1f2937" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M18 26 26 18 M54 18 62 26" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
         </svg>
       </div>
       <h1 class="title">어메이징사업부 블로그 자동화</h1>
@@ -291,8 +291,9 @@
   function isTestMode(){ return location.search.includes('test=true') || location.search.includes('debug=true'); }
   const HOOKS_BASE='https://hooks.xn--h32b21du9cf7grcy2k20f.com';
   const WF_PATH='ask';
-  const WEBHOOK_URL = isTestMode()?`${HOOKS_BASE}/webhook-test/${WF_PATH}`:`${HOOKS_BASE}/webhook/${WF_PATH}`;
-  if (isTestMode()){ const ind=document.createElement('div'); ind.className='test-indicator'; ind.textContent='TEST MODE'; document.body.appendChild(ind); }
+  // 항상 운영 경로로 고정 (test=true라도 변수 제거)
+  const WEBHOOK_URL = `${HOOKS_BASE}/webhook/${WF_PATH}`;
+  if (isTestMode()){ const ind=document.createElement('div'); ind.className='test-indicator'; ind.textContent='TEST MODE (prod webhook 사용중)'; document.body.appendChild(ind); }
 
   const $=(s)=>document.querySelector(s);
   const q=$('#q'), btn=$('#send'), res=$('#res'), sendLabel=$('#sendLabel');
@@ -302,12 +303,25 @@
     else { btn.disabled=false; sendLabel.textContent='Send'; }
   }
 
+  // 타임아웃 10분 + CORS 모드 명시
   async function postJson(url, body, timeoutMs=600000){
-    const controller=new AbortController(); const t=setTimeout(()=>controller.abort(), timeoutMs);
+    const controller=new AbortController();
+    const t=setTimeout(()=>controller.abort(), timeoutMs);
     try{
-      const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:controller.signal});
-      const text=await r.text(); let data; try{data=JSON.parse(text);}catch{data={raw:text};}
-      return {ok:r.ok,status:r.status,data};
+      const r=await fetch(url,{
+        method:'POST',
+        mode:'cors',
+        credentials:'omit',
+        headers:{
+          'Content-Type':'application/json',
+          'Accept':'application/json, text/plain, */*'
+        },
+        body:JSON.stringify(body),
+        signal:controller.signal
+      });
+      const text=await r.text();
+      let data; try{ data=JSON.parse(text); } catch{ data={ raw:text }; }
+      return { ok:r.ok, status:r.status, data };
     } finally { clearTimeout(t); }
   }
 
@@ -326,8 +340,17 @@
     }catch{ return htmlString; }
   }
   function pickHtmlPayload(data, fallback){
-    const candidates=[data?.html_document,data?.html,data?.content,data?.body,data?.answer?.html_document,data?.answer?.html,data?.data?.html_document,data?.data?.html,data?.json?.html_document,data?.json?.html,fallback].filter(v=>typeof v==='string');
-    for(let raw of candidates){ const dec=/&lt;|&gt;|&amp;|&quot;|&#39;/.test(raw)?decodeHtmlEntities(raw):raw; if(looksLikeHtml(dec)) return dec; }
+    const candidates=[
+      data?.html_document,data?.html,data?.content,data?.body,
+      data?.answer?.html_document,data?.answer?.html,
+      data?.data?.html_document,data?.data?.html,
+      data?.json?.html_document,data?.json?.html,
+      fallback
+    ].filter(v=>typeof v==='string');
+    for(let raw of candidates){
+      const dec=/&lt;|&gt;|&amp;|&quot;|&#39;/.test(raw)?decodeHtmlEntities(raw):raw;
+      if(looksLikeHtml(dec)) return dec;
+    }
     return null;
   }
 
@@ -377,8 +400,11 @@
     const topic=q.value.trim(); if(topic.length<2){ q.focus(); res.textContent='Please enter at least 2 characters.'; enableExports(false); return; }
     loading(true);
     try{
-      const r=await postJson(WEBHOOK_URL,{topic});
-      if(!r.ok){ res.textContent=`HTTP ${r.status}\n`+JSON.stringify(r.data,null,2); enableExports(false); return; }
+      const r=await postJson(WEBHOOK_URL,{topic}, 600000);
+      if(!r.ok){
+        res.textContent=`HTTP ${r.status}\n`+JSON.stringify(r.data,null,2);
+        enableExports(false); return;
+      }
       const ans=r.data?.answer ?? r.data?.data ?? r.data?.raw ?? r.data ?? {ok:true};
       const html=pickHtmlPayload(r.data, typeof ans==='string'?ans:'');
       if(html){
@@ -398,7 +424,7 @@
   btn.addEventListener('click', send);
   q.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); send(); }});
 
-  // ===== 카테고리 탭 + 3개 로테이션 (밑줄 제거 버전) =====
+  // ===== 카테고리 탭 + 3개 로테이션 =====
   const tabsEl=$('#tabs'), helpersEl=$('#helpers'); const ROTATE_MS=12000;
   let categories={}, catNames=[], currentCat=null, order=[], cursor=0, rotateTimer=null;
 
@@ -552,8 +578,24 @@
     const BASE='https://hooks.xn--h32b21du9cf7grcy2k20f.com/webhook/kakao-redirect';
     const key=$('#k-key'); const btnMake=$('#k-make'); const btnCopy=$('#k-copy'); const out=$('#k-result');
     function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,10); }
-    function build(){ const kw=(key.value||'').trim(); if(!kw){ out.textContent='키워드를 입력하세요'; out.classList.add('placeholder'); return; } const u=uid(); const qs=new URLSearchParams({ref:kw,utm_content:u}).toString(); const url=BASE+(BASE.includes('?')?'&':'?')+qs; out.innerHTML=`<a href="${url}" target="_blank" rel="noopener">${url}</a>`; out.classList.remove('placeholder'); }
-    async function copy(){ const a=out.querySelector('a'); const url=a?a.href:(out.textContent||'').trim(); if(!/^https?:\/\//.test(url)){ out.textContent='먼저 링크를 생성하세요'; out.classList.add('placeholder'); return; } try{ await navigator.clipboard.writeText(url); btnCopy.textContent='복사 완료 ✅'; setTimeout(()=>btnCopy.textContent='복사 📋',1200);}catch{ const t=document.createElement('textarea'); t.value=url; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); btnCopy.textContent='복사 완료 ✅'; setTimeout(()=>btnCopy.textContent='복사 📋',1200);} }
+    function build(){
+      const kw=(key.value||'').trim();
+      if(!kw){ out.textContent='키워드를 입력하세요'; out.classList.add('placeholder'); return; }
+      const u=uid();
+      const qs=new URLSearchParams({ref:kw,utm_content:u}).toString();
+      const url=BASE+(BASE.includes('?')?'&':'?')+qs;
+      out.innerHTML=`<a href="${url}" target="_blank" rel="noopener">${url}</a>`;
+      out.classList.remove('placeholder');
+    }
+    async function copy(){
+      const a=out.querySelector('a'); const url=a?a.href:(out.textContent||'').trim();
+      if(!/^https?:\/\//.test(url)){ out.textContent='먼저 링크를 생성하세요'; out.classList.add('placeholder'); return; }
+      try{ await navigator.clipboard.writeText(url); btnCopy.textContent='복사 완료 ✅'; setTimeout(()=>btnCopy.textContent='복사 📋',1200);}
+      catch{
+        const t=document.createElement('textarea'); t.value=url; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove();
+        btnCopy.textContent='복사 완료 ✅'; setTimeout(()=>btnCopy.textContent='복사 📋',1200);
+      }
+    }
     btnMake.addEventListener('click', build);
     btnCopy.addEventListener('click', copy);
     key.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); build(); }});
@@ -570,7 +612,6 @@
       toggle.querySelector('.chev').textContent = open ? '▴' : '▾';
     };
     toggle.addEventListener('click', ()=>setOpen(!open));
-    // 초기는 닫힘
     setOpen(false);
   })();
 
@@ -578,9 +619,8 @@
   (function init(){
     const cats=loadCategories(); categories=cats; catNames=Object.keys(categories);
     if(catNames.length){ renderTabs(); } else { $('#tabs').innerHTML=''; $('#helpers').innerHTML='<div class="placeholder">주제 풀이 없습니다</div>'; }
-    enableExports(false); // 시작은 비활성화
+    enableExports(false);
   })();
 </script>
 </body>
 </html>
-
