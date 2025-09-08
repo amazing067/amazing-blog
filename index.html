@@ -302,7 +302,7 @@
     else { btn.disabled=false; sendLabel.textContent='Send'; }
   }
 
-  async function postJson(url, body, timeoutMs=30000){
+  async function postJson(url, body, timeoutMs=600000){
     const controller=new AbortController(); const t=setTimeout(()=>controller.abort(), timeoutMs);
     try{
       const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:controller.signal});
@@ -583,3 +583,4 @@
 </script>
 </body>
 </html>
+
