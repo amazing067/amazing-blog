@@ -291,9 +291,12 @@
   function isTestMode(){ return location.search.includes('test=true') || location.search.includes('debug=true'); }
   const HOOKS_BASE='https://hooks.xn--h32b21du9cf7grcy2k20f.com';
   const WF_PATH='ask';
-  // 항상 운영 경로로 고정 (test=true라도 변수 제거)
-  const WEBHOOK_URL = `${HOOKS_BASE}/webhook/${WF_PATH}`;
-  if (isTestMode()){ const ind=document.createElement('div'); ind.className='test-indicator'; ind.textContent='TEST MODE (prod webhook 사용중)'; document.body.appendChild(ind); }
+  /* ▼▼▼ 여기만 추가/교체: prod/test 엔드포인트 스위치 ▼▼▼ */
+  const PROD_WEBHOOK_URL = `${HOOKS_BASE}/webhook/${WF_PATH}`;
+  const TEST_WEBHOOK_URL = `${HOOKS_BASE}/webhook-test/${WF_PATH}`; // n8n 에디터 Execute 상태에서만 대기
+  function currentEndpoint(){ return isTestMode() ? TEST_WEBHOOK_URL : PROD_WEBHOOK_URL; }
+  if (isTestMode()){ const ind=document.createElement('div'); ind.className='test-indicator'; ind.textContent='TEST MODE → editor(webhook-test)'; document.body.appendChild(ind); }
+  /* ▲▲▲ 추가/교체 끝 ▲▲▲ */
 
   const $=(s)=>document.querySelector(s);
   const q=$('#q'), btn=$('#send'), res=$('#res'), sendLabel=$('#sendLabel');
@@ -304,14 +307,15 @@
   }
 
   // 타임아웃 10분 + CORS 모드 명시
-  async function postJson(url, body, timeoutMs=600000){
+  /* ▼▼▼ postJson에 credentials 분기 추가 ▼▼▼ */
+  async function postJson(url, body, timeoutMs=600000, withCredentials=false){
     const controller=new AbortController();
     const t=setTimeout(()=>controller.abort(), timeoutMs);
     try{
       const r=await fetch(url,{
         method:'POST',
         mode:'cors',
-        credentials:'omit',
+        credentials: withCredentials ? 'include' : 'omit',
         headers:{
           'Content-Type':'application/json',
           'Accept':'application/json, text/plain, */*'
@@ -324,6 +328,7 @@
       return { ok:r.ok, status:r.status, data };
     } finally { clearTimeout(t); }
   }
+  /* ▲▲▲ 수정 끝 ▲▲▲ */
 
   function looksLikeHtml(s){ return /^\s*<(?:!DOCTYPE|html|body|main|div|section|article|h1|h2|p|iframe)\b/i.test(s||""); }
   function decodeHtmlEntities(str){ if(typeof str!=='string') return str; const el=document.createElement('textarea'); el.innerHTML=str; return el.value; }
@@ -400,7 +405,11 @@
     const topic=q.value.trim(); if(topic.length<2){ q.focus(); res.textContent='Please enter at least 2 characters.'; enableExports(false); return; }
     loading(true);
     try{
-      const r=await postJson(WEBHOOK_URL,{topic}, 600000);
+      /* ▼▼▼ 엔드포인트/크레덴셜 분기 ▼▼▼ */
+      const ENDPOINT = currentEndpoint();
+      const WITH_CREDS = !isTestMode(); // test(webhook-test)=omit, prod(webhook)=include
+      const r=await postJson(ENDPOINT,{topic}, 600000, WITH_CREDS);
+      /* ▲▲▲ 분기 끝 ▲▲▲ */
       if(!r.ok){
         res.textContent=`HTTP ${r.status}\n`+JSON.stringify(r.data,null,2);
         enableExports(false); return;
