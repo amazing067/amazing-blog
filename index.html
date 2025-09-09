@@ -297,7 +297,15 @@
   function currentEndpoint(){ return isTestMode() ? TEST_WEBHOOK_URL : PROD_WEBHOOK_URL; }
   if (isTestMode()){ const ind=document.createElement('div'); ind.className='test-indicator'; ind.textContent='TEST MODE → editor(webhook-test)'; document.body.appendChild(ind); }
   /* ▲▲▲ 추가/교체 끝 ▲▲▲ */
-  
+
+  const $=(s)=>document.querySelector(s);
+  const q=$('#q'), btn=$('#send'), res=$('#res'), sendLabel=$('#sendLabel');
+
+  function loading(on){
+    if(on){ btn.disabled=true; sendLabel.innerHTML='<span class="spin"></span>'; res.innerHTML='<div class="status"><span class="spin"></span>AI is working…</div>'; }
+    else { btn.disabled=false; sendLabel.textContent='Send'; }
+  }
+
   // 타임아웃 10분 + CORS 모드 명시
   /* ▼▼▼ postJson에 credentials 분기 추가 ▼▼▼ */
   async function postJson(url, body, timeoutMs=600000, withCredentials=false){
@@ -625,6 +633,3 @@
 </script>
 </body>
 </html>
-
-
-
