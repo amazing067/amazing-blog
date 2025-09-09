@@ -286,32 +286,7 @@
     "반려동물보험": ["반려동물보험 보장 범위 총정리","질병/상해 보장 차이","예방접종·중성화 보장 여부","슬개골 탈구 보장되는가","피부질환 보장 범위","유전질환 보장 제한","자기부담금·한도 선택법","동물병원 직접청구 방법","다마리(다펫) 할인","강아지 vs 고양이 보장 차이","치과·스케일링 보장","정밀검사 보장 기준","입원/수술 보장 요건","장기약 복용 보장","특정 품종 유의사항","예상 보험료 계산 팁","갱신/해지 시 유의","해외여행 반려동물 보장","유기·분실 등록 절차","반려동물 등록증 서류","행동교정 보장 여부","장례/화장 보장 여부","사고 책임배상 보장","훈련 비용 보장?","산책 중 사고 보장","교상(물림) 사고 처리","이동장/케이지 파손","입양 초기 질병 면책","노령 반려견 가입","보험금 청구 서류"]
   }</script>
 
-<script>
- // ===== 공통 =====
-function isTestMode(){ return location.search.includes('test=true') || location.search.includes('debug=true'); }
-const HOOKS_BASE='https://hooks.xn--h32b21du9cf7grcy2k20f.com';
-const WF_PATH='ask';
-
-// 하나의 엔드포인트만 사용
-const BASE_URL = `${HOOKS_BASE}/webhook/${WF_PATH}`;
-// test 모드일 때는 항상 새 요청으로 나가도록 캐시 무효 파라미터 추가
-const WEBHOOK_URL = isTestMode() ? `${BASE_URL}?_t=${Date.now()}` : BASE_URL;
-
-// 표시만 test 모드 안내
-if (isTestMode()){
-  const ind=document.createElement('div');
-  ind.className='test-indicator';
-  ind.textContent='TEST MODE (prod webhook 사용)';
-  document.body.appendChild(ind);
-}
-
-  const $=(s)=>document.querySelector(s);
-  const q=$('#q'), btn=$('#send'), res=$('#res'), sendLabel=$('#sendLabel');
-
-  function loading(on){
-    if(on){ btn.disabled=true; sendLabel.innerHTML='<span class="spin"></span>'; res.innerHTML='<div class="status"><span class="spin"></span>AI is working…</div>'; }
-    else { btn.disabled=false; sendLabel.textContent='Send'; }
-  }
+<script> // ===== 공통 ===== function isTestMode(){ return location.search.includes('test=true') || location.search.includes('debug=true'); } const HOOKS_BASE='https://hooks.xn--h32b21du9cf7grcy2k20f.com'; const WF_PATH='ask'; /* ▼▼▼ 여기만 추가/교체: prod/test 엔드포인트 스위치 ▼▼▼ */ const PROD_WEBHOOK_URL = ${HOOKS_BASE}/webhook/${WF_PATH}; const TEST_WEBHOOK_URL = ${HOOKS_BASE}/webhook-test/${WF_PATH}; // n8n 에디터 Execute 상태에서만 대기 function currentEndpoint(){ return isTestMode() ? TEST_WEBHOOK_URL : PROD_WEBHOOK_URL; } if (isTestMode()){ const ind=document.createElement('div'); ind.className='test-indicator'; ind.textContent='TEST MODE → editor(webhook-test)'; document.body.appendChild(ind); } /* ▲▲▲ 추가/교체 끝 ▲▲▲ */
 
   // 타임아웃 10분 + CORS 모드 명시
   /* ▼▼▼ postJson에 credentials 분기 추가 ▼▼▼ */
@@ -640,4 +615,5 @@ if (isTestMode()){
 </script>
 </body>
 </html>
+
 
