@@ -287,16 +287,23 @@
   }</script>
 
 <script>
-  // ===== 공통 =====
-  function isTestMode(){ return location.search.includes('test=true') || location.search.includes('debug=true'); }
-  const HOOKS_BASE='https://hooks.xn--h32b21du9cf7grcy2k20f.com';
-  const WF_PATH='ask';
-  /* ▼▼▼ 여기만 추가/교체: prod/test 엔드포인트 스위치 ▼▼▼ */
-  const PROD_WEBHOOK_URL = `${HOOKS_BASE}/webhook/${WF_PATH}`;
-  const TEST_WEBHOOK_URL = `${HOOKS_BASE}/webhook-test/${WF_PATH}`; // n8n 에디터 Execute 상태에서만 대기
-  function currentEndpoint(){ return isTestMode() ? TEST_WEBHOOK_URL : PROD_WEBHOOK_URL; }
-  if (isTestMode()){ const ind=document.createElement('div'); ind.className='test-indicator'; ind.textContent='TEST MODE → editor(webhook-test)'; document.body.appendChild(ind); }
-  /* ▲▲▲ 추가/교체 끝 ▲▲▲ */
+ // ===== 공통 =====
+function isTestMode(){ return location.search.includes('test=true') || location.search.includes('debug=true'); }
+const HOOKS_BASE='https://hooks.xn--h32b21du9cf7grcy2k20f.com';
+const WF_PATH='ask';
+
+// 하나의 엔드포인트만 사용
+const BASE_URL = `${HOOKS_BASE}/webhook/${WF_PATH}`;
+// test 모드일 때는 항상 새 요청으로 나가도록 캐시 무효 파라미터 추가
+const WEBHOOK_URL = isTestMode() ? `${BASE_URL}?_t=${Date.now()}` : BASE_URL;
+
+// 표시만 test 모드 안내
+if (isTestMode()){
+  const ind=document.createElement('div');
+  ind.className='test-indicator';
+  ind.textContent='TEST MODE (prod webhook 사용)';
+  document.body.appendChild(ind);
+}
 
   const $=(s)=>document.querySelector(s);
   const q=$('#q'), btn=$('#send'), res=$('#res'), sendLabel=$('#sendLabel');
@@ -633,3 +640,4 @@
 </script>
 </body>
 </html>
+
